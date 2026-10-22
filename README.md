@@ -6,7 +6,6 @@
 Multi-location clicking, keyboard clicker and macro recorder in one lightweight app.
 
 [![Downloads](https://img.shields.io/github/downloads/Sorgarso/RazeClicker/total?style=for-the-badge&color=7c6eff)](https://github.com/Sorgarso/RazeClicker/releases)
-[![Latest release](https://img.shields.io/github/v/release/Sorgarso/RazeClicker?style=for-the-badge&color=7c6eff)](https://github.com/Sorgarso/RazeClicker/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078d4?style=for-the-badge)
 
 <img width="800" height="465" alt="RazeClicker" src="https://github.com/user-attachments/assets/abe37b06-58d8-48b8-bc8f-59577a5a4027" />
