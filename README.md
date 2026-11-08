@@ -1,7 +1,9 @@
 
 
-
+<div align="center">
+   
 # RazeClicker
+
 
 **Fast, precise and lightweight auto clicker for Windows.**
 
@@ -10,7 +12,6 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 [![Downloads](https://img.shields.io/github/downloads/Sorgarso/RazeClicker/total?style=for-the-badge&color=7c6eff)](https://github.com/Sorgarso/RazeClicker/releases)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078d4?style=for-the-badge)
 <img width="890" height="460" alt="RazeClicker" src="https://github.com/user-attachments/assets/259597a1-7c5e-409c-99e4-ad6dc1680f92" />
-
 
 
 [**Download Latest Release**](https://github.com/Sorgarso/RazeClicker/releases/latest)
