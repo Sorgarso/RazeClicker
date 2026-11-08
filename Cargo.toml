@@ -1,0 +1,54 @@
+[package]
+name = "RazeClicker"
+version = "2.0.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+auto-launch = "0.5"
+chrono = "0.4.45"
+dirs = "5"
+egui = "0.35"
+egui-directx11 = "0.13.0"
+egui-winit = { version = "0.35", default-features = false, features = ["links"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+reqwest = { version = "0.12", features = ["json"] }
+semver = "1.0.28"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1.0"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+winit = "0.30"
+
+windows = { version = "0.62.2", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_DirectComposition",
+    "Win32_Graphics_Dwm",
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Media",
+    "Win32_System",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Threading",
+    "Win32_UI_Controls",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Graphics_Gdi",
+] }
+
+[build-dependencies]
+winres = "0.1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "unwind"
+strip = false
+debug = 0
+
+
+[profile.dev.package."*"]
+opt-level = 3
