@@ -8,7 +8,7 @@ pub fn run() {
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
-        .expect("Не удалось создать Tokio Runtime");
+        .expect("Failed to create Tokio Runtime");
 
     let settings = Arc::new(Settings::new());
     config::load().apply(&settings);

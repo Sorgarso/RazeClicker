@@ -24,14 +24,22 @@ fn setup_panic_hook() {
         }
     }));
 }
-
 fn cleanup_old_version() {
     if let Ok(exe) = std::env::current_exe() {
-        let old = exe.with_extension("old");
-        let _ = std::fs::remove_file(old);
+        if let Some(name) = exe.file_name() {
+            let name = name.to_string_lossy();
+
+            let old_exe = exe.with_file_name(format!("{}.old", name));
+            let _ = std::fs::remove_file(old_exe);
+
+            let old = exe.with_file_name(format!(
+                "{}.old",
+                name.strip_suffix(".exe").unwrap_or(&name)
+            ));
+            let _ = std::fs::remove_file(old);
+        }
     }
 }
-
 fn main() {
     setup_panic_hook();
 
