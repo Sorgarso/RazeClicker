@@ -56,7 +56,6 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 
 - Some games with anti-cheat may block simulated input or ban for auto clickers. Use at your own risk.
 - Windows may flag the app as suspicious because it simulates input. The app has no ads and no telemetry. The only network request is the update check to GitHub.
-=======
 - **Precise CPS control.** Configure clicking speed in clicks per second, minute, hour or day.
 - **Mouse auto clicker.** Supports left and right mouse buttons.
 - **Keyboard auto clicker.** Automatically repeat keyboard inputs at a configurable rate.
@@ -209,4 +208,4 @@ RazeClicker is licensed under the [MIT License](LICENSE.md).
 
 
 </div>
->>>>>>> 3b999e0 (Release v2.0.0)
+
