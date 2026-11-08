@@ -1,19 +1,5 @@
-<<<<<<< HEAD
-<div align="center">
 
-# RazeClicker
 
-**Fast, precise auto clicker for Windows.**
-Multi-location clicking, keyboard clicker and macro recorder in one lightweight app.
-
-[![Downloads](https://img.shields.io/github/downloads/Sorgarso/RazeClicker/total?style=for-the-badge&color=7c6eff)](https://github.com/Sorgarso/RazeClicker/releases)
-![Platform](https://img.shields.io/badge/platform-Windows-0078d4?style=for-the-badge)
-
-<img width="800" height="465" alt="RazeClicker" src="https://github.com/user-attachments/assets/abe37b06-58d8-48b8-bc8f-59577a5a4027" />
-
-[**Download latest release**](https://github.com/Sorgarso/RazeClicker/releases/latest)
-=======
- <div align="center">
 
 # RazeClicker
 
@@ -28,7 +14,6 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 
 
 [**Download Latest Release**](https://github.com/Sorgarso/RazeClicker/releases/latest)
->>>>>>> 3b999e0 (Release v2.0.0)
 
 </div>
 
@@ -36,7 +21,6 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 
 ## Features
 
-<<<<<<< HEAD
 - **Precise CPS control.** Set 100 CPS and get 100 CPS. Choose clicks per second, minute, hour or day.
 - **Mouse clicker.** Left or right button, Toggle or Hold mode.
 - **Multi-location clicking.** Click through your own list of screen coordinates.
