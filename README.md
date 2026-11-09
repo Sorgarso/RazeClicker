@@ -36,41 +36,6 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 <img width="1283" height="373" alt="Macro recorder" src="https://github.com/user-attachments/assets/1b88cf22-27c7-4222-8c7c-731ce44f3249" />
 </div>
 
-## Quick start
-
-1. Download `RazeClicker.exe` from the [latest release](https://github.com/Sorgarso/RazeClicker/releases/latest).
-2. Run it and accept the license agreement.
-3. Choose the mouse button and the activation hotkey.
-4. Pick a mode: **Toggle** (press to start/stop) or **Hold** (clicks while the key is held).
-5. Set the click count and period.
-6. Optionally add click locations.
-7. Press the hotkey to start or stop.
-
-### Macro recorder
-
-1. Enable the recorder and press **Rec**.
-2. Perform your actions. Press **ESC** to stop recording.
-3. Press **Play once** or **Play Inf**. Press **F1** to stop playback.
-
-## Notes
-
-- Some games with anti-cheat may block simulated input or ban for auto clickers. Use at your own risk.
-- Windows may flag the app as suspicious because it simulates input. The app has no ads and no telemetry. The only network request is the update check to GitHub.
-- **Precise CPS control.** Configure clicking speed in clicks per second, minute, hour or day.
-- **Mouse auto clicker.** Supports left and right mouse buttons.
-- **Keyboard auto clicker.** Automatically repeat keyboard inputs at a configurable rate.
-- **Hold & Toggle modes.** Choose whether clicking continues while holding a hotkey or toggles on and off.
-- **Multi-location clicking.** Save screen coordinates and automatically click through multiple locations.
-- **Screen position picker.** Select positions directly from your screen.
-- **Macro recorder.** Capture mouse and keyboard actions with their original timings and replay them.
-- **Configurable playback.** Play macros once or repeat them infinitely.
-- **Custom hotkeys.** Configure hotkeys for clicking, recording and macro playback.
-- **Always on top.** Keep RazeClicker accessible above other windows.
-- **Built-in updater.** Get notified about new releases and update directly from the application.
-- **Multilingual interface.** Change the application language in Settings.
-- **Windows startup.** Optionally launch RazeClicker when Windows starts.
-- **No ads. No telemetry.**
-
 ### Clicker
 
 Configure clicking speed, mouse buttons, activation hotkeys and clicking modes.
