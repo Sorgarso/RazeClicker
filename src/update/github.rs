@@ -1,7 +1,6 @@
 use serde::Deserialize;
 use std::path::PathBuf;
 
-const REPO: &str = "Sorgarso/RazeClicker";
 const UA: &str = concat!("RazeClicker/", env!("CARGO_PKG_VERSION"));
 
 #[derive(Deserialize)]

@@ -1,8 +1,9 @@
-use crate::i18n::{tr, T};
+use crate::i18n::{T, tr};
 
 use crate::model::{key::key_name, settings::Settings};
 use crate::platform::windows::hooks;
 use crate::platform::windows::hooks::start;
+use crate::ui::Arc;
 use crate::ui::components::{
     card::card, card_header::card_header, hotkey_input::hotkey_input, radio_card::radio_card,
     row_label::row_label, segmented::segmented,
@@ -11,7 +12,6 @@ use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::icon_font;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
-use crate::ui::Arc;
 use egui::{Align, Layout, RichText, Ui, Vec2};
 use std::sync::atomic::Ordering::Relaxed;
 
@@ -138,9 +138,9 @@ fn keyboard_settings(ui: &mut Ui, s: &Arc<Settings>) {
     let mut unit = s.unit.load(Relaxed);
 
     let capturing = s.capturing.load(Relaxed);
-    let keycapturing = s.capturingKeybutton.load(Relaxed);
+    let key_capturing = s.capturing_key_button.load(Relaxed);
     let hotkey = s.hotkey.load(Relaxed);
-    let keyButton = s.keyButton.load(Relaxed);
+    let key_button = s.key_button.load(Relaxed);
     card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
         ui.spacing_mut().item_spacing = Vec2::new(10.0, 12.0);
         ui.set_min_height(CARD_H);
@@ -167,8 +167,8 @@ fn keyboard_settings(ui: &mut Ui, s: &Arc<Settings>) {
         ui.horizontal(|ui| {
             row_label(ui, tr(T::KeyboardKey));
 
-            if hotkey_input(ui, &key_name(keyButton), keycapturing) {
-                s.capturingKeybutton.store(!keycapturing, Relaxed);
+            if hotkey_input(ui, &key_name(key_button), key_capturing) {
+                s.capturing_key_button.store(!key_capturing, Relaxed);
             }
         });
     });

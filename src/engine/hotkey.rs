@@ -42,7 +42,7 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
                 InputEvent::KeyDown(vk) => {
                     let targets = [
                         (&s.capturing, &s.hotkey),
-                        (&s.capturingKeybutton, &s.keyButton),
+                        (&s.capturing_key_button, &s.key_button),
                         (&s.capturing_play_hotkey, &s.play_hotkey),
                         (&s.capturing_start_hotkey, &s.start_hotkey),
                     ];

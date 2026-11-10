@@ -24,10 +24,10 @@ pub struct Settings {
     pub mode: AtomicUsize,
     pub toggle: AtomicBool,
     pub enabled: AtomicBool,
-    pub hotkey: AtomicUsize,    // VK-код
-    pub keyButton: AtomicUsize, // VK-код
+    pub hotkey: AtomicUsize,     // VK-код
+    pub key_button: AtomicUsize, // VK-код
     pub capturing: AtomicBool,
-    pub capturingKeybutton: AtomicBool,
+    pub capturing_key_button: AtomicBool,
     pub pos: Mutex<Vec<Pos2>>,
     pub pick_location_enabled: AtomicBool,
     pub request_minimize: AtomicBool,
@@ -51,9 +51,9 @@ impl Settings {
             toggle: AtomicBool::new(TOGGLE),
             enabled: AtomicBool::new(false),
             hotkey: AtomicUsize::new(0x73), // F4
-            keyButton: AtomicUsize::new(0x46),
+            key_button: AtomicUsize::new(0x46),
             capturing: AtomicBool::new(false),
-            capturingKeybutton: AtomicBool::new(false),
+            capturing_key_button: AtomicBool::new(false),
             pos: Mutex::new(Vec::new()),
             pick_location_enabled: AtomicBool::new(false),
             request_minimize: AtomicBool::new(false),
@@ -84,6 +84,34 @@ impl Settings {
             _ => cps / 86400.0,
         };
         Duration::from_secs_f32(1.0 / per_sec.max(0.00001))
+    }
+
+    pub fn reset(&self) {
+        self.set_cps(50.0);
+        self.unit.store(0, Relaxed);
+        self.button.store(0, Relaxed);
+        self.mode.store(MOUSE_MODE, Relaxed);
+        self.toggle.store(TOGGLE, Relaxed);
+        self.enabled.store(false, Relaxed);
+
+        self.hotkey.store(0x73, Relaxed); // F4
+        self.key_button.store(0x46, Relaxed); // F
+        self.start_hotkey.store(0x74, Relaxed); // F5
+        self.play_hotkey.store(0x75, Relaxed); // F6
+
+        self.capturing.store(false, Relaxed);
+        self.capturing_key_button.store(false, Relaxed);
+        self.capturing_start_hotkey.store(false, Relaxed);
+        self.capturing_play_hotkey.store(false, Relaxed);
+
+        self.pos.lock().unwrap().clear();
+        self.pick_location_enabled.store(false, Relaxed);
+
+        self.request_minimize.store(false, Relaxed);
+
+        self.rec_state.store(REC_IDLE, Relaxed);
+        self.rec_track.lock().unwrap().clear();
+        self.play_loops.store(1, Relaxed);
     }
 }
 

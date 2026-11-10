@@ -60,7 +60,7 @@ impl Config {
             mode: s.mode.load(Relaxed),
             toggle: s.toggle.load(Relaxed),
             hotkey: s.hotkey.load(Relaxed),
-            key_button: s.keyButton.load(Relaxed),
+            key_button: s.key_button.load(Relaxed),
             pick_location_enabled: s.pick_location_enabled.load(Relaxed),
             points: s.pos.lock().unwrap().iter().map(|p| (p.x, p.y)).collect(),
             start_hotkey: s.start_hotkey.load(Relaxed),
@@ -78,7 +78,7 @@ impl Config {
         s.mode.store(self.mode, Relaxed);
         s.toggle.store(self.toggle, Relaxed);
         s.hotkey.store(self.hotkey, Relaxed);
-        s.keyButton.store(self.key_button, Relaxed);
+        s.key_button.store(self.key_button, Relaxed);
         s.pick_location_enabled
             .store(self.pick_location_enabled, Relaxed);
         *s.pos.lock().unwrap() = self.points.iter().map(|&(x, y)| egui::pos2(x, y)).collect();

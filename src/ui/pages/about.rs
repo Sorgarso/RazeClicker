@@ -1,4 +1,4 @@
-use crate::i18n::{tr, T};
+use crate::i18n::{T, tr};
 use crate::ui::components::{card::card, logo_button::logo_button, pill::pill};
 use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::{icon_font, regular};
@@ -8,8 +8,8 @@ use egui::{Align2, CornerRadius, RichText, Sense, Stroke, StrokeKind, Ui, Vec2};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-const URL_SITE: &str = "https://razeclicker.vercel.app/";
-const URL_EULA: &str = "https://razeclicker.vercel.app/license";
+const URL_SITE: &str = "https://razeclicker.pw/";
+const URL_EULA: &str = "https://razeclicker.pw/license";
 const URL_DONATE: &str = "https://www.donationalerts.com/r/sorgarso";
 const URL_GITHUB: &str = "https://github.com/Sorgarso/RazeClicker";
 const URL_LICENSES: &str =

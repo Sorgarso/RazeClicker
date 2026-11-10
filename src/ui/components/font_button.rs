@@ -3,9 +3,9 @@ use egui::{Color32, FontFamily, FontId, Vec2};
 
 pub fn font_button(
     ui: &mut egui::Ui,
-    colorBg: Color32,
-    colorHover: Color32,
-    cornerRadius: u8,
+    color_bg: Color32,
+    color_hover: Color32,
+    corner_radius: u8,
     text: &str,
     size: Vec2,
 ) -> egui::Response {
@@ -15,9 +15,9 @@ pub fn font_button(
     let hovered = resp.contains_pointer();
     let t = ui.ctx().animate_bool_with_time(resp.id, hovered, 0.2);
 
-    let bg = colorBg.lerp_to_gamma(colorHover, t);
+    let bg = color_bg.lerp_to_gamma(color_hover, t);
 
-    ui.painter().rect_filled(rect, cornerRadius, bg);
+    ui.painter().rect_filled(rect, corner_radius, bg);
 
     ui.painter().text(
         rect.center(),

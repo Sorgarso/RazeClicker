@@ -1,5 +1,5 @@
 use std::{
-    sync::{atomic::Ordering::Relaxed, Arc},
+    sync::{Arc, atomic::Ordering::Relaxed},
     time::{Duration, Instant},
 };
 
@@ -74,7 +74,7 @@ fn run(s: &Settings) {
             if mode == 0 {
                 click(s.button.load(Relaxed));
             } else {
-                key_press(s.keyButton.load(Relaxed), 10);
+                key_press(s.key_button.load(Relaxed), 10);
             }
         }
         n += 1;

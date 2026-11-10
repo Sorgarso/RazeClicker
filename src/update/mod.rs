@@ -69,11 +69,4 @@ impl Updater {
             }
         });
     }
-
-    pub fn dismiss(&self) {
-        let mut s = self.status.write().unwrap();
-        if matches!(*s, UpdateStatus::Failed(_) | UpdateStatus::Available { .. }) {
-            *s = UpdateStatus::Idle;
-        }
-    }
 }

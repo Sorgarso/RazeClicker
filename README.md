@@ -173,4 +173,7 @@ RazeClicker is licensed under the [MIT License](LICENSE.md).
 
 
 </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 38fb06e (Added reset all settings option)

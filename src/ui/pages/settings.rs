@@ -1,17 +1,17 @@
-use crate::i18n::{lang, set_lang, tr, Lang, T};
+use crate::i18n::{Lang, T, lang, set_lang, tr};
 use crate::model::{config, settings::Settings};
 use crate::platform::windows::autostart;
 use crate::ui::components::{
-    card::card, dropdown::dropdown, row_divider::row_divider, segmented::segmented,
-    setting_item::setting_item, toggle::toggle,
+    card::card, dropdown::dropdown, outlined_button::outlined_button, row_divider::row_divider,
+    segmented::segmented, setting_item::setting_item, toggle::toggle,
 };
 use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::{icon_font, regular};
 use crate::ui::state::Page;
 use crate::ui::theme::*;
-use egui::{ComboBox, CornerRadius, Frame, Margin, RichText, Stroke, Ui};
-use std::sync::atomic::Ordering::Relaxed;
+use egui::{ComboBox, CornerRadius, Frame, Margin, RichText, Stroke, Ui, Vec2};
 use std::sync::Arc;
+use std::sync::atomic::Ordering::Relaxed;
 
 pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
     let mut lang_idx = if lang() == Lang::Ru { 1 } else { 0 };
@@ -55,6 +55,36 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
             tr(T::StartOnWindows),
             tr(T::StartOnWindowsSub),
             |ui| toggle(ui, &mut autostart_on),
+        );
+
+        row_divider(ui);
+
+        setting_item(
+            ui,
+            ICON_FA_ARROWS_ROTATE,
+            tr(T::ResetAllSettings),
+            tr(T::ResetAllSettingsSub),
+            |ui| {
+                if outlined_button(
+                    ui,
+                    DANGER_IDLE,
+                    DANGER_HOVER,
+                    10,
+                    tr(T::Reset),
+                    Some(ICON_FA_TRASH),
+                    Vec2::new(140.0, 40.0),
+                )
+                .clicked()
+                {
+                    s.reset();
+                    lang_idx = 0;
+                    autostart_on = false;
+
+                    ui.data_mut(|d| {
+                        d.remove::<bool>(auto_id);
+                    });
+                }
+            },
         );
     });
 

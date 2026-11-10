@@ -1,5 +1,5 @@
 use crate::i18n::{T, tr};
-use crate::model::{key::key_name, settings::Settings};
+use crate::model::settings::Settings;
 use crate::platform::windows::hooks;
 use crate::platform::windows::hooks::start_pick_location;
 use crate::ui::components::logo_button::logo_button;
