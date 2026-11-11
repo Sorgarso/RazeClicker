@@ -33,14 +33,10 @@ pub async fn latest() -> Result<Option<Found>, String> {
         .await
         .map_err(|e| e.to_string())?;
 
-    let tag = rel
-        .tag_name
-        .trim()
-        .trim_start_matches('v')
-        .trim_end_matches('v');
+    let tag = rel.tag_name.trim().trim_matches('v').to_string();
 
     let remote =
-        semver::Version::parse(tag).map_err(|e| format!("bad tag {}: {e}", rel.tag_name))?;
+        semver::Version::parse(&tag).map_err(|e| format!("bad tag {}: {e}", rel.tag_name))?;
     let local = semver::Version::parse(env!("CARGO_PKG_VERSION")).unwrap();
     if remote <= local {
         return Ok(None);

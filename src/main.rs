@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod app;
 mod engine;
+use std::time::Duration;
 mod i18n;
 mod model;
 mod platform;
@@ -26,18 +27,19 @@ fn setup_panic_hook() {
 }
 fn cleanup_old_version() {
     if let Ok(exe) = std::env::current_exe() {
-        if let Some(name) = exe.file_name() {
-            let name = name.to_string_lossy();
+        let old = exe.with_extension("old");
 
-            let old_exe = exe.with_file_name(format!("{}.old", name));
-            let _ = std::fs::remove_file(old_exe);
-
-            let old = exe.with_file_name(format!(
-                "{}.old",
-                name.strip_suffix(".exe").unwrap_or(&name)
-            ));
-            let _ = std::fs::remove_file(old);
-        }
+        std::thread::spawn(move || {
+            for _ in 0..20 {
+                match std::fs::remove_file(&old) {
+                    Ok(_) => break,
+                    Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                        std::thread::sleep(Duration::from_millis(500));
+                    }
+                    Err(_) => std::thread::sleep(Duration::from_millis(500)),
+                }
+            }
+        });
     }
 }
 fn main() {
