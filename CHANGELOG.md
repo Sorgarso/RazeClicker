@@ -2,6 +2,13 @@
 
 All notable changes to RazeClicker are documented here.
 
+## [2.1.0] - 2026-11-12
+
+### Added
+- Added a new changelog dialog to display release notes after updating.
+
+---
+
 ## [2.0.3] - 2026-11-12
 
 ### Fixed
