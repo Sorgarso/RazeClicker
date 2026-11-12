@@ -3,33 +3,92 @@ use std::{
     time::{Duration, Instant},
 };
 
-use windows::Win32::{
-    Media::timeBeginPeriod,
-    System::Threading::{GetCurrentThread, SetThreadPriority, THREAD_PRIORITY_HIGHEST},
+use windows::{
+    Win32::{
+        Foundation::{CloseHandle, HANDLE},
+        Media::{timeBeginPeriod, timeEndPeriod},
+        System::Threading::{
+            CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, CreateWaitableTimerExW, GetCurrentThread,
+            SetThreadPriority, SetWaitableTimer, THREAD_PRIORITY_HIGHEST, TIMER_ALL_ACCESS,
+            WaitForSingleObject,
+        },
+    },
+    core::PCWSTR,
 };
 
 use crate::{
     model::settings::Settings,
-    platform::windows::input::{click, click_at, key_press, move_mouse},
+    platform::windows::input::{click, click_at, key_press},
 };
-const SPIN_MARGIN: Duration = Duration::from_millis(2);
+
+const SPIN_HR: Duration = Duration::from_micros(400);
+const SPIN_FALLBACK: Duration = Duration::from_millis(2);
 const MAX_SLEEP: Duration = Duration::from_millis(10);
 const MIN_LAG: Duration = Duration::from_millis(50);
+const IDLE_SLEEP: Duration = Duration::from_millis(10);
+
+struct HrTimer(HANDLE);
+
+impl HrTimer {
+    fn new() -> Option<Self> {
+        unsafe {
+            CreateWaitableTimerExW(
+                None,
+                PCWSTR::null(),
+                CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+                TIMER_ALL_ACCESS.0,
+            )
+            .ok()
+            .map(Self)
+        }
+    }
+
+    fn sleep(&self, d: Duration) {
+        let due = -((d.as_nanos() / 100) as i64);
+        unsafe {
+            if SetWaitableTimer(self.0, &due, 0, None, None, false).is_ok() {
+                WaitForSingleObject(self.0, 50);
+            }
+        }
+    }
+}
+
+impl Drop for HrTimer {
+    fn drop(&mut self) {
+        unsafe {
+            let _ = CloseHandle(self.0);
+        }
+    }
+}
 
 pub fn start(s: Arc<Settings>) {
     std::thread::Builder::new()
         .name("clicker".into())
         .spawn(move || {
             unsafe {
-                timeBeginPeriod(1);
                 let _ = SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
             }
-            run(&s);
+
+            let timer = HrTimer::new();
+            let legacy = timer.is_none();
+            if legacy {
+                unsafe {
+                    timeBeginPeriod(1);
+                }
+            }
+
+            run(&s, &timer);
+
+            if legacy {
+                unsafe {
+                    timeEndPeriod(1);
+                }
+            }
         })
         .expect("clicker thread");
 }
 
-fn run(s: &Settings) {
+fn run(s: &Settings, timer: &Option<HrTimer>) {
     let mut running = false;
     let mut start = Instant::now();
     let mut n: u64 = 0;
@@ -40,7 +99,7 @@ fn run(s: &Settings) {
     loop {
         if !s.enabled.load(Relaxed) {
             running = false;
-            std::thread::sleep(Duration::from_millis(1));
+            std::thread::sleep(IDLE_SLEEP);
             continue;
         }
 
@@ -59,7 +118,7 @@ fn run(s: &Settings) {
         }
 
         let deadline = start + interval.mul_f64(n as f64);
-        if !wait_until(deadline, s) {
+        if !wait_until(deadline, s, timer) {
             running = false;
             continue;
         }
@@ -68,14 +127,10 @@ fn run(s: &Settings) {
             let p = points[idx % points.len()];
             idx += 1;
             click_at(s.button.load(Relaxed), p.x as i32, p.y as i32);
+        } else if s.mode.load(Relaxed) == 0 {
+            click(s.button.load(Relaxed));
         } else {
-            let mode = s.mode.load(Relaxed);
-
-            if mode == 0 {
-                click(s.button.load(Relaxed));
-            } else {
-                key_press(s.key_button.load(Relaxed), 10);
-            }
+            key_press(s.key_button.load(Relaxed), 10);
         }
         n += 1;
 
@@ -87,7 +142,13 @@ fn run(s: &Settings) {
     }
 }
 
-fn wait_until(deadline: Instant, s: &Settings) -> bool {
+fn wait_until(deadline: Instant, s: &Settings, timer: &Option<HrTimer>) -> bool {
+    let spin = if timer.is_some() {
+        SPIN_HR
+    } else {
+        SPIN_FALLBACK
+    };
+
     loop {
         if !s.enabled.load(Relaxed) {
             return false;
@@ -97,8 +158,13 @@ fn wait_until(deadline: Instant, s: &Settings) -> bool {
             return true;
         }
         let rem = deadline - now;
-        if rem > SPIN_MARGIN + Duration::from_millis(1) {
-            std::thread::sleep((rem - SPIN_MARGIN).min(MAX_SLEEP));
+
+        if rem > spin + Duration::from_micros(600) {
+            let nap = (rem - spin).min(MAX_SLEEP);
+            match timer {
+                Some(t) => t.sleep(nap),
+                None => std::thread::sleep(nap),
+            }
         } else {
             std::hint::spin_loop();
         }
