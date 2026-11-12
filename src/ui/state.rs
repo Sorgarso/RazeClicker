@@ -31,6 +31,7 @@ pub struct UiState {
     pub close: bool,
     pub minimize: bool,
     pub show_dialog: bool,
+    pub show_update_dialog: bool,
 }
 
 impl UiState {
@@ -43,6 +44,7 @@ impl UiState {
             close: false,
             minimize: false,
             show_dialog: true,
+            show_update_dialog: std::env::args().any(|arg| arg == "--update"),
         }
     }
 }

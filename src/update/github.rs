@@ -83,3 +83,33 @@ pub async fn download_and_swap(url: &str) -> Result<PathBuf, String> {
     }
     Ok(exe)
 }
+
+pub async fn get_changelogs(url: &str, version: &str) -> Result<String, String> {
+    let changelog = reqwest::Client::new()
+        .get(url)
+        .header("User-Agent", UA)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .error_for_status()
+        .map_err(|e| e.to_string())?
+        .text()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let header = format!("## [{}]", version);
+
+    let section = changelog
+        .split(&header)
+        .nth(1)
+        .ok_or_else(|| format!("Changelog for version {} not found", version))?;
+
+    let section = section
+        .lines()
+        .skip(1)
+        .take_while(|line| !line.starts_with("## "))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    Ok(section.trim().to_string())
+}

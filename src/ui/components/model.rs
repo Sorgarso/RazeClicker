@@ -1,8 +1,8 @@
 use crate::ui::components::header_button::close_button::close_button;
 use crate::ui::theme::*;
 use egui::{
-    vec2, Align2, Area, Color32, CornerRadius, Frame, Id, Key, Margin, Order, Sense, Shadow,
-    Stroke, Ui,
+    Align2, Area, Color32, CornerRadius, Frame, Id, Key, Margin, Order, Sense, Shadow, Stroke, Ui,
+    vec2,
 };
 
 pub fn modal(
@@ -51,22 +51,13 @@ pub fn modal(
                 })
                 .show(ui, |ui| {
                     ui.set_width(width);
-                    // ui.set_height(height);
 
-                    // Header
-                    ui.allocate_ui_with_layout(
-                        vec2(ui.available_width() + 36.0, 36.0),
-                        egui::Layout::right_to_left(egui::Align::Min),
-                        |ui| {
-                            if close_button(ui).clicked() {
-                                *open = false;
-                            }
-                        },
-                    );
+                    ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
+                        if close_button(ui).clicked() {
+                            *open = false;
+                        }
+                    });
 
-                    ui.add_space(8.0);
-
-                    // Content
                     ui.vertical_centered(|ui| {
                         add_contents(ui);
                     });

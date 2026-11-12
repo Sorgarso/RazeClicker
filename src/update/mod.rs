@@ -5,9 +5,12 @@ use state::UpdateStatus;
 use std::sync::{Arc, OnceLock, RwLock};
 use tokio::runtime::Handle;
 
+const CHANGELOG_URL: &str =
+    "https://raw.githubusercontent.com/Sorgarso/RazeClicker/main/CHANGELOG.md";
 pub struct Updater {
     handle: Handle,
     status: Arc<RwLock<UpdateStatus>>,
+    changelog: Arc<RwLock<String>>,
     ctx: Arc<OnceLock<egui::Context>>,
 }
 
@@ -16,12 +19,21 @@ impl Updater {
         Self {
             handle,
             status: Arc::new(RwLock::new(UpdateStatus::Idle)),
+            changelog: Arc::new(RwLock::new(String::new())),
             ctx: Arc::new(OnceLock::new()),
         }
     }
 
     pub fn status(&self) -> UpdateStatus {
         self.status.read().unwrap().clone()
+    }
+
+    pub fn set_changelog(&self, new_changelog: String) {
+        *self.changelog.write().unwrap() = new_changelog;
+    }
+
+    pub fn get_changelog(&self) -> String {
+        self.changelog.read().unwrap().clone()
     }
 
     fn set(status: &RwLock<UpdateStatus>, ctx: &OnceLock<egui::Context>, s: UpdateStatus) {
@@ -62,11 +74,20 @@ impl Updater {
         self.handle.spawn(async move {
             match github::download_and_swap(&url).await {
                 Ok(exe) => {
-                    let _ = std::process::Command::new(exe).spawn();
+                    let _ = std::process::Command::new(exe).arg("--update").spawn();
+
                     std::process::exit(0);
                 }
                 Err(e) => Self::set(&st, &ctx, UpdateStatus::Failed(e)),
             }
         });
+    }
+
+    pub fn get_changelogs_github(
+        &self,
+        version: String,
+    ) -> tokio::task::JoinHandle<Result<String, String>> {
+        self.handle
+            .spawn(async move { github::get_changelogs(CHANGELOG_URL, &version).await })
     }
 }

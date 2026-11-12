@@ -73,6 +73,7 @@ pub enum T {
     Playback,
     PlaybackSub,
     Repeat,
+    Version,
     Once,
     Inf,
     recEvent,
@@ -95,12 +96,17 @@ pub enum T {
     UpdateFailed,
     UpToDate,
     PleaseWait,
+    WhatsNew,
 }
 pub fn tr(k: T) -> &'static str {
     use T::*;
     match (lang(), k) {
         (Lang::En, PickFromScreen) => "Pick From Screen",
         (Lang::Ru, PickFromScreen) => "Выбрать с экрана",
+        (Lang::En, Version) => "Version",
+        (Lang::Ru, Version) => "Версия",
+        (Lang::En, WhatsNew) => "What's New",
+        (Lang::Ru, WhatsNew) => "Что нового",
         (Lang::En, ResetAllSettings) => "Reset all settings",
         (Lang::Ru, ResetAllSettings) => "Сбросить всё настройки",
         (Lang::En, ResetAllSettingsSub) => "Restore default settings",
