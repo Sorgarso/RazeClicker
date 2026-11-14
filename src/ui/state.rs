@@ -6,21 +6,11 @@ use crate::{model::settings::Settings, update::Updater};
 pub enum Page {
     #[default]
     Clicker,
-    Keyboard,
+    Advanced,
     PickLocation,
     Recorder,
     Settings,
     About,
-    Studio,
-}
-
-impl Page {
-    pub fn window_size(self) -> (f32, f32) {
-        match self {
-            Page::Studio => (1270.0, 700.0),
-            _ => (890.0, 460.0),
-        }
-    }
 }
 
 pub struct UiState {
@@ -32,6 +22,7 @@ pub struct UiState {
     pub minimize: bool,
     pub show_dialog: bool,
     pub show_update_dialog: bool,
+    pub last_sent_size: Option<egui::Vec2>,
 }
 
 impl UiState {
@@ -45,6 +36,7 @@ impl UiState {
             minimize: false,
             show_dialog: true,
             show_update_dialog: std::env::args().any(|arg| arg == "--update"),
+            last_sent_size: None,
         }
     }
 }

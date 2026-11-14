@@ -2,6 +2,24 @@
 
 All notable changes to RazeClicker are documented here.
 
+
+## [2.2.0] - 2026-11-**
+
+### Added
+- Added Jitter functionality to introduce random intervals between clicks.
+- Added a Click Limit option to limit the number of clicks.
+- Added a new Advanced page for customizing clicker behavior.
+- Added a bug report button to the header for quick and easy bug reporting.
+- Added an Always on Top option.
+- Added an Overlay option.
+- Added a toggle to enable or disable the clicker.
+- Added more UI animations for a smoother and more dynamic user experience.
+
+### Improved
+- Improved the overall UI design for a cleaner and more polished appearance.
+
+---
+
 ## [2.1.0] - 2026-11-12
 
 ### Added

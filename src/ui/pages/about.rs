@@ -1,5 +1,7 @@
 use crate::i18n::{T, tr};
-use crate::ui::components::{card::card, logo_button::logo_button, pill::pill};
+use crate::ui::components::{
+    card::card, card_logo::card_logo, logo_button::logo_button, pill::pill,
+};
 use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::{icon_font, regular};
 use crate::ui::images::{self, Img};

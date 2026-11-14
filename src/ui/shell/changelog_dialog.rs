@@ -123,19 +123,6 @@ pub fn changelog_dialog(ui: &mut egui::Ui, st: &mut UiState) {
                         }
                     }
                 });
-
-            // ui.with_layout(Layout::bottom_up(Align::Center), |ui| {
-            //     let btn = egui::Button::new(
-            //         RichText::new("Got it")
-            //             .font(regular(13.0))
-            //             .color(Color32::WHITE),
-            //     )
-            //     .fill(ACCENT)
-            //     .corner_radius(8.0);
-            //     if ui.add_sized([ui.available_width(), 30.0], btn).clicked() {
-            //         close = true;
-            //     }
-            // });
         },
     );
 

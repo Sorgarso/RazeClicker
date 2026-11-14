@@ -1,3 +1,4 @@
+pub mod anim;
 pub mod assets;
 pub mod backend;
 pub mod components;

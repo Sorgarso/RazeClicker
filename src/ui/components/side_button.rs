@@ -2,6 +2,7 @@ use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::icon_font;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
+
 use egui::{Align2, Color32, CornerRadius, FontFamily, FontId, Response, Sense, Ui, Vec2};
 
 pub fn side_panel_button(ui: &mut Ui, icon: Option<&str>, text: &str, selected: bool) -> Response {
@@ -15,9 +16,7 @@ pub fn side_panel_button(ui: &mut Ui, icon: Option<&str>, text: &str, selected: 
         .ctx()
         .animate_bool_with_time(resp.id.with("sel"), selected, 0.15);
 
-    let bg = Color32::TRANSPARENT
-        .lerp_to_gamma(Color32::from_rgb(30, 30, 38), t)
-        .lerp_to_gamma(ACCENT.gamma_multiply(0.25), s);
+    let bg = Color32::TRANSPARENT.lerp_to_gamma(Color32::from_rgb(30, 30, 38), t * (1.0 - s));
     ui.painter().rect_filled(rect, CornerRadius::same(8), bg);
 
     let text_color = MUTED.lerp_to_gamma(TEXT, s.max(t));

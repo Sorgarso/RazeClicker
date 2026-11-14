@@ -1,5 +1,4 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-#![allow(warnings)]
 mod app;
 mod engine;
 use std::time::Duration;

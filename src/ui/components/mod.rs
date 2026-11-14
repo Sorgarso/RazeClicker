@@ -1,7 +1,9 @@
 pub mod button;
 pub mod card;
 pub mod card_header;
+pub mod card_logo;
 pub mod coord_row;
+pub mod dim_scope;
 pub mod dropdown;
 pub mod font_button;
 pub mod header_button;
@@ -19,3 +21,4 @@ pub mod segmented;
 pub mod setting_item;
 pub mod side_button;
 pub mod toggle;
+pub mod tooltip_below;

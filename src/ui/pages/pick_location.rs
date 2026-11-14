@@ -5,9 +5,10 @@ use crate::platform::windows::hooks::start_pick_location;
 use crate::ui::components::logo_button::logo_button;
 use crate::ui::components::toggle::toggle;
 use crate::ui::components::{
-    button, card::card, card_header::card_header, coord_row::coord_row, hotkey_input::hotkey_input,
-    input_text::input_text, logo_button, outlined_button::outlined_button, radio_card::radio_card,
-    row_label::row_label, segmented::segmented, toggle,
+    button, card::card, card_header::card_header, card_logo::card_logo, coord_row::coord_row,
+    hotkey_input::hotkey_input, input_text::input_text, logo_button,
+    outlined_button::outlined_button, radio_card::radio_card, row_label::row_label,
+    segmented::segmented, toggle,
 };
 use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::icon_font;
@@ -22,8 +23,13 @@ const CARD_H: f32 = 260.0;
 pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
     let mut pick_location_enabled = s.pick_location_enabled.load(Relaxed);
     let points_list = s.pos.lock().unwrap().clone();
+
     ui.horizontal(|ui| {
-        ui.vertical_centered(|ui| {
+        card_logo(ui, ICON_FA_MAP_LOCATION_DOT);
+        ui.add_space(7.0);
+        ui.vertical(|ui| {
+            ui.add_space(3.0);
+            ui.spacing_mut().item_spacing.y = 4.0;
             ui.label(
                 RichText::new(tr(T::PickLocation))
                     .font(regular(26.0))

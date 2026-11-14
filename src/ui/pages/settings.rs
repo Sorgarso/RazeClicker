@@ -2,8 +2,8 @@ use crate::i18n::{Lang, T, lang, set_lang, tr};
 use crate::model::{config, settings::Settings};
 use crate::platform::windows::autostart;
 use crate::ui::components::{
-    card::card, dropdown::dropdown, outlined_button::outlined_button, row_divider::row_divider,
-    segmented::segmented, setting_item::setting_item, toggle::toggle,
+    card::card, card_logo::card_logo, dropdown::dropdown, outlined_button::outlined_button,
+    row_divider::row_divider, segmented::segmented, setting_item::setting_item, toggle::toggle,
 };
 use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::{icon_font, regular};
@@ -15,6 +15,11 @@ use std::sync::atomic::Ordering::Relaxed;
 
 pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
     let mut lang_idx = if lang() == Lang::Ru { 1 } else { 0 };
+    let mut overlay = s.overlay.load(Relaxed);
+    let old_overlay = overlay;
+
+    let mut on_top = s.always_on_top.load(Relaxed);
+    let old_on_top = on_top;
 
     let auto_id = egui::Id::new("autostart_state");
     let mut autostart_on: bool = ui
@@ -24,7 +29,11 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
     let (old_lang, old_auto) = (lang_idx, autostart_on);
 
     ui.horizontal(|ui| {
-        ui.vertical_centered(|ui| {
+        card_logo(ui, ICON_FA_GEAR);
+        ui.add_space(7.0);
+        ui.vertical(|ui| {
+            ui.add_space(3.0);
+            ui.spacing_mut().item_spacing.y = 4.0;
             ui.label(
                 RichText::new(tr(T::Settings))
                     .font(regular(26.0))
@@ -47,6 +56,7 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
                 dropdown(ui, "lang", &mut lang_idx, &["English", "Русский"], 160.0);
             },
         );
+
         row_divider(ui);
 
         setting_item(
@@ -57,6 +67,21 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
             |ui| toggle(ui, &mut autostart_on),
         );
 
+        row_divider(ui);
+
+        setting_item(ui, ICON_FA_EYE, tr(T::Overlay), tr(T::OverlaySub), |ui| {
+            toggle(ui, &mut overlay)
+        });
+
+        row_divider(ui);
+
+        setting_item(
+            ui,
+            ICON_FA_THUMBTACK,
+            tr(T::AlwaysOnTop),
+            tr(T::AlwaysOnTopSub),
+            |ui| toggle(ui, &mut on_top),
+        );
         row_divider(ui);
 
         setting_item(
@@ -123,6 +148,7 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
         set_lang(if lang_idx == 1 { Lang::Ru } else { Lang::En });
         changed = true;
     }
+
     if autostart_on != old_auto {
         autostart::set_enabled(autostart_on);
     }
@@ -135,6 +161,14 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
         autostart::set_enabled(autostart_on);
     }
     ui.data_mut(|d| d.insert_temp(auto_id, autostart_on));
+
+    if overlay != old_overlay {
+        s.overlay.store(overlay, Relaxed);
+    }
+
+    if on_top != old_on_top {
+        s.always_on_top.store(on_top, Relaxed);
+    }
 }
 
 fn configure_button(ui: &mut Ui, text: &str) -> bool {

@@ -37,6 +37,7 @@ pub fn run() {
     let (events, hooks) = platform::windows::hooks::start();
 
     engine::start(settings.clone(), events);
+    platform::windows::overlay::start(settings.clone());
 
     updater.check();
     ui::run(settings, updater);

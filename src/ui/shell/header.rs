@@ -1,13 +1,15 @@
-use egui::{CornerRadius, Frame, Margin, Vec2};
+use egui::{Area, CornerRadius, Frame, Id, Margin, Order, RichText, Vec2, vec2};
 
 use crate::{
-    i18n::{lang, set_lang, tr, Lang, T},
+    i18n::{Lang, T, lang, set_lang, tr},
     ui::{
         components::{
-            font_button,
+            font_button::font_button,
             header_button::{close_button::close_button, minimize_button::minimize_button},
+            tooltip_below::tooltip_below,
         },
-        fonts::fa_data::ICON_FA_LANGUAGE,
+        fonts::fa_data::{ICON_FA_BUG, ICON_FA_LANGUAGE},
+        fonts::fonts::regular,
         state::UiState,
         theme::*,
     },
@@ -44,6 +46,13 @@ pub fn show(ui: &mut egui::Ui, st: &mut UiState) {
                 }
                 if minimize_button(ui).clicked() {
                     st.minimize = true;
+                }
+                let resp = font_button(ui, MIN_IDLE, MIN_HOVER, 5, ICON_FA_BUG, vec2(35.0, 35.0));
+                tooltip_below(ui, &resp, tr(T::ReportABug));
+                if resp.clicked() {
+                    ui.ctx().open_url(egui::OpenUrl::new_tab(
+                        "https://www.razeclicker.pw/feedback",
+                    ));
                 }
             });
         });

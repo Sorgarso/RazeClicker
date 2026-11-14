@@ -22,6 +22,10 @@ pub struct Config {
     pub start_hotkey: usize,
     pub play_hotkey: usize,
     pub play_loops: u32,
+    pub jitter_enabled: bool,
+    pub click_limit_enabled: bool,
+    pub overlay: bool,
+    pub always_on_top: bool,
 }
 
 impl Default for Config {
@@ -41,6 +45,10 @@ impl Default for Config {
             start_hotkey: 0x75,
             play_hotkey: 0x74,
             play_loops: 1,
+            jitter_enabled: false,
+            click_limit_enabled: false,
+            overlay: false,
+            always_on_top: false,
         }
     }
 }
@@ -66,6 +74,10 @@ impl Config {
             start_hotkey: s.start_hotkey.load(Relaxed),
             play_hotkey: s.play_hotkey.load(Relaxed),
             play_loops: s.play_loops.load(Relaxed),
+            jitter_enabled: s.jitter_enabled.load(Relaxed),
+            click_limit_enabled: s.click_limit_enabled.load(Relaxed),
+            overlay: s.overlay.load(Relaxed),
+            always_on_top: s.always_on_top.load(Relaxed),
         }
     }
 
@@ -85,6 +97,11 @@ impl Config {
         s.start_hotkey.store(self.start_hotkey, Relaxed);
         s.play_hotkey.store(self.play_hotkey, Relaxed);
         s.play_loops.store(self.play_loops, Relaxed);
+        s.jitter_enabled.store(self.jitter_enabled, Relaxed);
+        s.overlay.store(self.overlay, Relaxed);
+        s.always_on_top.store(self.always_on_top, Relaxed);
+        s.click_limit_enabled
+            .store(self.click_limit_enabled, Relaxed);
     }
 }
 

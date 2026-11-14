@@ -10,7 +10,7 @@ use egui_winit::winit::{
     event::{StartCause, WindowEvent},
     event_loop::{ActiveEventLoop, ControlFlow, DeviceEvents, EventLoop},
     raw_window_handle::{HasWindowHandle, RawWindowHandle},
-    window::{Icon, Window, WindowId},
+    window::{Icon, Window, WindowId, WindowLevel},
 };
 use windows::Win32::{
     Foundation::{HWND, LPARAM, WPARAM},
@@ -53,6 +53,7 @@ struct Host {
     last_frame: Instant,
     last_saved: Config,
     dirty_since: Option<Instant>,
+    applied_top: Option<bool>,
 }
 impl ApplicationHandler for Host {
     fn resumed(&mut self, el: &ActiveEventLoop) {
@@ -147,6 +148,7 @@ impl ApplicationHandler for Host {
             last_frame,
             last_saved,
             dirty_since,
+            applied_top,
         } = self;
         let Some(g) = gfx.as_mut() else { return };
 
@@ -169,6 +171,15 @@ impl ApplicationHandler for Host {
             let full = ctx.run_ui(raw, |ui| crate::ui::shell::draw(ui, st));
 
             let (renderer_out, platform, viewports) = egui_directx11::split_output(full);
+            if let Some(v) = viewports.get(&egui::ViewportId::ROOT) {
+                for cmd in &v.commands {
+                    if let egui::ViewportCommand::InnerSize(sz) = cmd {
+                        let _ = g
+                            .window
+                            .request_inner_size(LogicalSize::new(sz.x as f64, sz.y as f64));
+                    }
+                }
+            }
             g.state.handle_platform_output(&g.window, platform);
 
             g.dx.draw(ctx, renderer_out, CLEAR);
@@ -185,6 +196,16 @@ impl ApplicationHandler for Host {
             if st.close {
                 el.exit();
                 return;
+            }
+
+            let top = st.settings.always_on_top.load(Relaxed);
+            if *applied_top != Some(top) {
+                g.window.set_window_level(if top {
+                    WindowLevel::AlwaysOnTop
+                } else {
+                    WindowLevel::Normal
+                });
+                *applied_top = Some(top);
             }
 
             if st.drag {
@@ -270,6 +291,7 @@ pub fn run(settings: Arc<Settings>, updater: Arc<Updater>) {
         last_frame: Instant::now(),
         last_saved: settings_snapshot,
         dirty_since: None,
+        applied_top: None,
     };
     event_loop.run_app(&mut host).expect("run");
 }

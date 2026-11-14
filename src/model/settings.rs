@@ -18,7 +18,8 @@ pub const KEYBOARD_MODE: usize = 1;
 pub const TOGGLE: bool = false;
 
 pub struct Settings {
-    cps: AtomicU32,          // f32 как биты
+    cps: AtomicU32, // f32 как биты
+    pub enable_clicker: AtomicBool,
     pub unit: AtomicUsize,   // 0=s 1=m 2=h 3=d
     pub button: AtomicUsize, // 0=Left 1=Right
     pub mode: AtomicUsize,
@@ -39,12 +40,19 @@ pub struct Settings {
     pub start_hotkey: AtomicUsize, // VK-код
     pub capturing_start_hotkey: AtomicBool,
     pub capturing_play_hotkey: AtomicBool,
+    pub jitter: AtomicUsize,
+    pub jitter_enabled: AtomicBool,
+    pub overlay: AtomicBool,
+    pub always_on_top: AtomicBool,
+    pub click_limit_enabled: AtomicBool,
+    pub click_limit: AtomicU32,
 }
 
 impl Settings {
     pub fn new() -> Self {
         Self {
             cps: AtomicU32::new(50.0f32.to_bits()),
+            enable_clicker: AtomicBool::new(true),
             unit: AtomicUsize::new(0),
             button: AtomicUsize::new(0),
             mode: AtomicUsize::new(MOUSE_MODE),
@@ -65,6 +73,12 @@ impl Settings {
             start_hotkey: AtomicUsize::new(0x74),
             capturing_start_hotkey: AtomicBool::new(false),
             capturing_play_hotkey: AtomicBool::new(false),
+            jitter: AtomicUsize::new(0),
+            jitter_enabled: AtomicBool::new(false),
+            overlay: AtomicBool::new(false),
+            always_on_top: AtomicBool::new(false),
+            click_limit_enabled: AtomicBool::new(false),
+            click_limit: AtomicU32::new(100),
         }
     }
 
@@ -112,6 +126,13 @@ impl Settings {
         self.rec_state.store(REC_IDLE, Relaxed);
         self.rec_track.lock().unwrap().clear();
         self.play_loops.store(1, Relaxed);
+        self.jitter.store(0, Relaxed);
+        self.jitter_enabled.store(false, Relaxed);
+        self.overlay.store(false, Relaxed);
+        self.always_on_top.store(false, Relaxed);
+        self.enable_clicker.store(false, Relaxed);
+        self.click_limit_enabled.store(false, Relaxed);
+        self.click_limit.store(100, Relaxed);
     }
 }
 

@@ -40,10 +40,12 @@ pub fn draw(ui: &mut egui::Ui, st: &mut UiState) {
                 .auto_shrink([false, false])
                 .show(ui, |ui| match st.page {
                     Page::Clicker => pages::clicker::show(ui, &st.settings),
+                    Page::Advanced => pages::advanced::show(ui, &st.settings),
                     Page::PickLocation => pages::pick_location::show(ui, &st.settings),
                     Page::Recorder => pages::recorder::show(ui, &st.settings),
                     Page::Settings => pages::settings::show(ui, &st.settings, &mut st.page),
                     Page::About => pages::about::show(ui),
+
                     _ => {
                         ui.label(RichText::new("Not implemented").color(MUTED));
                     }

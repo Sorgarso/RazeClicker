@@ -1,5 +1,5 @@
 use crate::engine::recorder;
-use crate::i18n::{tr, T};
+use crate::i18n::{T, tr};
 use crate::model::recording::Action;
 use crate::model::recording::RecEvent;
 use crate::model::{key::key_name, settings::Settings};
@@ -8,8 +8,8 @@ use crate::platform::windows::hooks::start_pick_location;
 use crate::ui::components::logo_button::logo_button;
 use crate::ui::components::toggle::toggle;
 use crate::ui::components::{
-    button, card::card, card_header::card_header, coord_row::coord_row, dropdown::dropdown,
-    hotkey_input::hotkey_input, input_text::input_text, logo_button,
+    button, card::card, card_header::card_header, card_logo::card_logo, coord_row::coord_row,
+    dropdown::dropdown, hotkey_input::hotkey_input, input_text::input_text, logo_button,
     outlined_button::outlined_button, radio_card::radio_card, rec_event_row::rec_event_row,
     row_label::row_label, segmented::segmented, toggle,
 };
@@ -18,8 +18,8 @@ use crate::ui::fonts::fonts::icon_font;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
 use egui::{Align, Layout, RichText, Ui, Vec2};
-use std::sync::atomic::Ordering::Relaxed;
 use std::sync::Arc;
+use std::sync::atomic::Ordering::Relaxed;
 
 const CARD_H: f32 = 260.0;
 
@@ -31,7 +31,11 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
     let mut play_loops = s.play_loops.load(Relaxed) as usize;
 
     ui.horizontal(|ui| {
-        ui.vertical_centered(|ui| {
+        card_logo(ui, ICON_FA_RECORD_VINYL);
+        ui.add_space(7.0);
+        ui.vertical(|ui| {
+            ui.add_space(3.0);
+            ui.spacing_mut().item_spacing.y = 4.0;
             ui.label(
                 RichText::new(tr(T::Recorder))
                     .font(regular(26.0))
