@@ -3,7 +3,7 @@
 All notable changes to RazeClicker are documented here.
 
 
-## [2.2.0] - 2026-11-**
+## [2.2.0] - 2026-11-14
 
 ### Added
 - Added Jitter functionality to introduce random intervals between clicks.
