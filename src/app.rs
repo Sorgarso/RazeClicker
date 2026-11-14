@@ -18,7 +18,7 @@ pub fn run() {
     let updater = Arc::new(Updater::new(runtime.handle().clone()));
 
     if std::env::args().any(|arg| arg == "--update") {
-        let task = updater.get_changelogs_github("2.0.0".to_string());
+        let task = updater.get_changelogs_github(VERSION.to_string());
 
         let updater_clone = updater.clone();
 
