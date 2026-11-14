@@ -11,8 +11,7 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 
 [![Downloads](https://img.shields.io/github/downloads/Sorgarso/RazeClicker/total?style=for-the-badge&color=7c6eff)](https://github.com/Sorgarso/RazeClicker/releases)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078d4?style=for-the-badge)
-<img width="890" height="460" alt="autoclicker" src="https://github.com/user-attachments/assets/79594533-48a8-423a-920f-0e4d198e11c7" />
-
+<img width="890" height="460" alt="autoclicker" src="https://github.com/user-attachments/assets/9c6e6204-e79e-4b8b-bf20-de3df3d4a120" />
 
 [**Download Latest Release**](https://github.com/Sorgarso/RazeClicker/releases/latest)
 
