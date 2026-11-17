@@ -32,7 +32,8 @@ Mouse automation, multi-location clicking, keyboard auto clicking and macro reco
 - **No ads, no telemetry.**
 
 <div align="center">
-<img width="1283" height="373" alt="Macro recorder" src="https://github.com/user-attachments/assets/1b88cf22-27c7-4222-8c7c-731ce44f3249" />
+<img width="542" height="422" alt="image" src="https://github.com/user-attachments/assets/ac5eb5f5-86d5-4fe2-a246-4c80f180bd28" />
+
 </div>
 
 ### Clicker
