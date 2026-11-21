@@ -1,11 +1,7 @@
-use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::icon_font;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
-use egui::{
-    Align2, Color32, CornerRadius, FontFamily, FontId, Pos2, Response, Sense, Stroke, StrokeKind,
-    Ui, Vec2,
-};
+use egui::{Align2, Color32, Pos2, Stroke, StrokeKind, Vec2};
 
 pub fn outlined_button(
     ui: &mut egui::Ui,

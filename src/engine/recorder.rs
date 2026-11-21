@@ -1,15 +1,12 @@
 use std::{
-    sync::{atomic::Ordering::Relaxed, Arc},
+    sync::{Arc, atomic::Ordering::Relaxed},
     time::{Duration, Instant},
 };
 
-use windows::Win32::UI::WindowsAndMessaging::MrmResourceIndexerHandle;
-
 use crate::{
-    engine::hotkey,
     model::{recording::*, settings::Settings},
     platform::windows::{
-        hooks::{self, Event, InputEvent, MouseBtn},
+        hooks::{Event, InputEvent, MouseBtn},
         input,
     },
 };
@@ -78,7 +75,7 @@ impl Recorder {
             InputEvent::MouseMove(x, y) => {
                 if self
                     .last_move
-                    .map_or(false, |t| e.at.duration_since(t) < MOVE_MIN)
+                    .is_some_and(|t| e.at.duration_since(t) < MOVE_MIN)
                 {
                     return;
                 }
@@ -108,12 +105,8 @@ pub fn play(s: &Arc<Settings>) {
         return;
     }
 
-    let mut idx = 0;
-    let play_loop = if s.play_loops.load(Relaxed) == 0 {
-        true
-    } else {
-        false
-    };
+    let _idx = 0;
+    let play_loop = s.play_loops.load(Relaxed) == 0;
     let track = s.rec_track.lock().unwrap().clone();
 
     if track.is_empty() {

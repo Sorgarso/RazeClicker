@@ -1,7 +1,5 @@
 use crate::ui::{fonts::fonts::regular, theme::*};
-use egui::{
-    Align2, CornerRadius, FontFamily, FontId, Response, Sense, Stroke, StrokeKind, Ui, Vec2,
-};
+use egui::{Align2, CornerRadius, Response, Sense, Stroke, StrokeKind, Ui, Vec2};
 
 pub fn radio_card(ui: &mut Ui, selected: bool, text: &str) -> Response {
     let (rect, resp) =

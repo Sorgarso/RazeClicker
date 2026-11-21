@@ -1,57 +1,65 @@
 use crate::i18n::{T, tr};
-
-use crate::model::{key::key_name, settings::Settings};
-use crate::platform::windows::hooks;
-use crate::platform::windows::hooks::start;
+use crate::model::settings::Settings;
 use crate::ui::Arc;
-use crate::ui::components::card_header::card_header_reserve;
+use crate::ui::anim::page_reveal::staggered;
 use crate::ui::components::{
-    card::card, card_header::card_header, card_logo::card_logo, dim_scope::dim_scope,
-    hotkey_input::hotkey_input, logo_button::logo_button, radio_card::radio_card,
-    row_label::row_label, segmented::segmented, toggle::toggle,
+    card::card, card_header::card_header_reserve, dim_scope::dim_scope, drift::drift,
+    form_row::form_row, page_title::page_title, toggle::toggle,
 };
 use crate::ui::fonts::fa_data::*;
-use crate::ui::fonts::fonts::icon_font;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
 use egui::{Align, Layout, RichText, Ui, Vec2};
 use std::sync::atomic::Ordering::Relaxed;
 
 const CARD_H: f32 = 150.0;
+const CARD_W: f32 = 330.0;
+const GAP: f32 = 28.0;
+const TOGGLE_W: f32 = 64.0;
 
 pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
-    ui.horizontal(|ui| {
-        card_logo(ui, ICON_FA_SLIDERS);
-        ui.add_space(7.0);
-        ui.vertical(|ui| {
-            ui.add_space(3.0);
-            ui.spacing_mut().item_spacing.y = 4.0;
-            ui.label(
-                RichText::new(tr(T::Advanced))
-                    .font(regular(26.0))
-                    .color(TEXT),
-            );
-            ui.label(RichText::new(tr(T::AdvancedSub)).size(14.0).color(MUTED));
-        });
+    staggered(ui, 0, |ui| {
+        page_title(
+            ui,
+            tr(T::AdvancedEyebrow),
+            tr(T::Advanced),
+            tr(T::AdvancedSub),
+        );
+    });
+
+    ui.add_space(52.0);
+
+    let w = ((ui.available_width() - GAP) / 2.0).min(CARD_W);
+    let total = w * 2.0 + GAP;
+    let pad = ((ui.available_width() - total) / 2.0).max(0.0);
+    let size = Vec2::new(w, CARD_H + MARGIN_BASE as f32 * 2.0);
+
+    ui.horizontal_top(|ui| {
+        ui.spacing_mut().item_spacing.x = GAP;
+        ui.add_space(pad);
+
+        drift(
+            ui,
+            "adv_jitter",
+            size,
+            1.0,
+            Layout::top_down(Align::Min),
+            |ui| jitter_card(ui, s, w),
+        );
+        drift(
+            ui,
+            "adv_limit",
+            size,
+            1.0,
+            Layout::top_down(Align::Min),
+            |ui| click_limit_card(ui, s, w),
+        );
     });
 
     ui.add_space(16.0);
-
-    let gap = 16.0;
-    let w = (ui.available_width() - gap) / 2.0;
-
-    ui.horizontal_top(|ui| {
-        ui.spacing_mut().item_spacing.x = gap;
-        ui.allocate_ui_with_layout(Vec2::new(w, 0.0), Layout::top_down(Align::Min), |ui| {
-            jitter_card(ui, s);
-        });
-        ui.allocate_ui_with_layout(Vec2::new(w, 0.0), Layout::top_down(Align::Min), |ui| {
-            click_limit_card(ui, s);
-        });
-    });
 }
 
-fn jitter_card(ui: &mut Ui, s: &Settings) {
+fn jitter_card(ui: &mut Ui, s: &Settings, w: f32) {
     let cps = s.cps();
     let unit = s.unit.load(Relaxed);
 
@@ -59,30 +67,18 @@ fn jitter_card(ui: &mut Ui, s: &Settings) {
     let mut pct = s.jitter.load(Relaxed);
 
     card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
-        ui.spacing_mut().item_spacing = Vec2::new(10.0, 10.0);
+        ui.spacing_mut().item_spacing = Vec2::new(10.0, 14.0);
+        ui.set_width(w - MARGIN_BASE as f32 * 2.0);
+        ui.set_height(CARD_H);
 
         ui.horizontal(|ui| {
-            ui.horizontal(|ui| {
-                ui.label(
-                    RichText::new(ICON_FA_WAVE_SQUARE)
-                        .font(icon_font(20.0))
-                        .color(MUTED),
-                );
-                ui.vertical(|ui| {
-                    ui.spacing_mut().item_spacing.y = 0.0;
-                    ui.set_max_width((ui.available_width() - 64.0).max(80.0));
-                    ui.label(RichText::new(tr(T::Jitter)).font(regular(18.0)).color(TEXT));
-                    ui.add(
-                        egui::Label::new(
-                            RichText::new(tr(T::JitterSub))
-                                .font(regular(12.0))
-                                .color(MUTED),
-                        )
-                        .wrap(),
-                    );
-                });
-            });
-
+            card_header_reserve(
+                ui,
+                ICON_FA_WAVE_SQUARE,
+                tr(T::Jitter),
+                tr(T::JitterSub),
+                TOGGLE_W,
+            );
             ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
                 let was = enabled;
                 toggle(ui, &mut enabled);
@@ -92,15 +88,14 @@ fn jitter_card(ui: &mut Ui, s: &Settings) {
             });
         });
 
+        ui.add_space(2.0);
+
         dim_scope(ui, "jitter", enabled, |ui| {
             let amount = cps * pct as f32 / 100.0;
             let mut lo = cps - amount;
             let mut hi = cps + amount;
 
-            ui.horizontal(|ui| {
-                let content_w = 180.0;
-                ui.add_space(((ui.available_width() - content_w) / 2.0).max(0.0));
-
+            form_row(ui, tr(T::Range), |ui| {
                 let lo_changed = ui
                     .add_sized(
                         [56.0, ROW_H],
@@ -128,7 +123,7 @@ fn jitter_card(ui: &mut Ui, s: &Settings) {
                     tr(T::UnitDay),
                 ];
                 ui.label(
-                    RichText::new(units[unit.min(3)].to_string())
+                    RichText::new(units[unit.min(3)])
                         .font(regular(12.0))
                         .color(MUTED),
                 );
@@ -162,12 +157,14 @@ fn jitter_card(ui: &mut Ui, s: &Settings) {
     }
 }
 
-fn click_limit_card(ui: &mut Ui, s: &Arc<Settings>) {
+fn click_limit_card(ui: &mut Ui, s: &Arc<Settings>, w: f32) {
     let mut on = s.click_limit_enabled.load(Relaxed);
     let mut limit = s.click_limit.load(Relaxed);
 
     card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
-        ui.spacing_mut().item_spacing = Vec2::new(10.0, 12.0);
+        ui.spacing_mut().item_spacing = Vec2::new(10.0, 14.0);
+        ui.set_width(w - MARGIN_BASE as f32 * 2.0);
+        ui.set_height(CARD_H);
 
         ui.horizontal(|ui| {
             card_header_reserve(
@@ -175,23 +172,28 @@ fn click_limit_card(ui: &mut Ui, s: &Arc<Settings>) {
                 ICON_FA_HASHTAG,
                 tr(T::ClickLimit),
                 tr(T::ClickLimitSub),
-                64.0,
+                TOGGLE_W,
             );
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
+            ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
                 toggle(ui, &mut on);
             });
         });
 
+        ui.add_space(2.0);
+
         dim_scope(ui, "click_limit", on, |ui| {
-            ui.horizontal(|ui| {
-                row_label(ui, tr(T::StopAfter));
+            form_row(ui, tr(T::StopAfter), |ui| {
                 ui.add_sized(
-                    [90.0, ROW_H],
+                    [80.0, ROW_H],
                     egui::DragValue::new(&mut limit)
                         .range(1..=1_000_000)
                         .speed(1.0),
                 );
-                row_label(ui, tr(T::ClicksLower));
+                ui.label(
+                    RichText::new(tr(T::ClicksLower))
+                        .font(regular(12.0))
+                        .color(MUTED),
+                );
             });
         });
     });

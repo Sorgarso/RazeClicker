@@ -1,8 +1,8 @@
 use std::{
     sync::{
-        atomic::{AtomicBool, Ordering},
-        mpsc::{channel, Receiver, Sender},
         OnceLock,
+        atomic::{AtomicBool, Ordering},
+        mpsc::{Receiver, Sender, channel},
     },
     thread::JoinHandle,
     time::Instant,
@@ -72,65 +72,69 @@ fn send(ev: InputEvent) {
 }
 
 unsafe extern "system" fn kb_proc(code: i32, w: WPARAM, l: LPARAM) -> LRESULT {
-    if code >= 0 {
-        let k = &*(l.0 as *const KBDLLHOOKSTRUCT);
-        if k.flags.0 & LLKHF_INJECTED.0 == 0 {
-            match w.0 as u32 {
-                WM_KEYDOWN | WM_SYSKEYDOWN => send(InputEvent::KeyDown(k.vkCode)),
-                WM_KEYUP | WM_SYSKEYUP => send(InputEvent::KeyUp(k.vkCode)),
-                _ => {}
+    unsafe {
+        if code >= 0 {
+            let k = &*(l.0 as *const KBDLLHOOKSTRUCT);
+            if k.flags.0 & LLKHF_INJECTED.0 == 0 {
+                match w.0 as u32 {
+                    WM_KEYDOWN | WM_SYSKEYDOWN => send(InputEvent::KeyDown(k.vkCode)),
+                    WM_KEYUP | WM_SYSKEYUP => send(InputEvent::KeyUp(k.vkCode)),
+                    _ => {}
+                }
             }
         }
+        CallNextHookEx(None, code, w, l)
     }
-    CallNextHookEx(None, code, w, l)
 }
 
 unsafe extern "system" fn mouse_proc(code: i32, w: WPARAM, l: LPARAM) -> LRESULT {
-    if code >= 0 {
-        let m = &*(l.0 as *const MSLLHOOKSTRUCT);
+    unsafe {
+        if code >= 0 {
+            let m = &*(l.0 as *const MSLLHOOKSTRUCT);
 
-        let (x, y) = (m.pt.x, m.pt.y);
-        if m.flags & LLMHF_INJECTED == 0 {
-            match w.0 as u32 {
-                WM_LBUTTONDOWN => {
-                    let picking = PICK_LOCATION.swap(false, Ordering::SeqCst);
+            let (x, y) = (m.pt.x, m.pt.y);
+            if m.flags & LLMHF_INJECTED == 0 {
+                match w.0 as u32 {
+                    WM_LBUTTONDOWN => {
+                        let picking = PICK_LOCATION.swap(false, Ordering::SeqCst);
 
-                    if picking {
-                        send(InputEvent::PickedLocation(x, y));
-                    } else {
-                        send(InputEvent::MouseDown(MouseBtn::Left));
+                        if picking {
+                            send(InputEvent::PickedLocation(x, y));
+                        } else {
+                            send(InputEvent::MouseDown(MouseBtn::Left));
+                        }
                     }
-                }
-                WM_LBUTTONUP => send(InputEvent::MouseUp(MouseBtn::Left)),
-                WM_RBUTTONDOWN => send(InputEvent::MouseDown(MouseBtn::Right)),
-                WM_RBUTTONUP => send(InputEvent::MouseUp(MouseBtn::Right)),
-                WM_MBUTTONDOWN => send(InputEvent::MouseDown(MouseBtn::Middle)),
-                WM_MBUTTONUP => send(InputEvent::MouseUp(MouseBtn::Middle)),
-                WM_MOUSEMOVE => send(InputEvent::MouseMove(m.pt.x, m.pt.y)),
-                WM_XBUTTONDOWN => {
-                    let btn = (m.mouseData >> 16) as u16;
+                    WM_LBUTTONUP => send(InputEvent::MouseUp(MouseBtn::Left)),
+                    WM_RBUTTONDOWN => send(InputEvent::MouseDown(MouseBtn::Right)),
+                    WM_RBUTTONUP => send(InputEvent::MouseUp(MouseBtn::Right)),
+                    WM_MBUTTONDOWN => send(InputEvent::MouseDown(MouseBtn::Middle)),
+                    WM_MBUTTONUP => send(InputEvent::MouseUp(MouseBtn::Middle)),
+                    WM_MOUSEMOVE => send(InputEvent::MouseMove(m.pt.x, m.pt.y)),
+                    WM_XBUTTONDOWN => {
+                        let btn = (m.mouseData >> 16) as u16;
 
-                    match btn {
-                        1 => send(InputEvent::MouseDown(MouseBtn::X1)),
-                        2 => send(InputEvent::MouseDown(MouseBtn::X2)),
-                        _ => {}
+                        match btn {
+                            1 => send(InputEvent::MouseDown(MouseBtn::X1)),
+                            2 => send(InputEvent::MouseDown(MouseBtn::X2)),
+                            _ => {}
+                        }
                     }
-                }
 
-                WM_XBUTTONUP => {
-                    let btn = (m.mouseData >> 16) as u16;
+                    WM_XBUTTONUP => {
+                        let btn = (m.mouseData >> 16) as u16;
 
-                    match btn {
-                        1 => send(InputEvent::MouseUp(MouseBtn::X1)),
-                        2 => send(InputEvent::MouseUp(MouseBtn::X2)),
-                        _ => {}
+                        match btn {
+                            1 => send(InputEvent::MouseUp(MouseBtn::X1)),
+                            2 => send(InputEvent::MouseUp(MouseBtn::X2)),
+                            _ => {}
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
             }
         }
+        CallNextHookEx(None, code, w, l)
     }
-    CallNextHookEx(None, code, w, l)
 }
 
 pub fn start() -> (Receiver<Event>, Hooks) {

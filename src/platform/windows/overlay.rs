@@ -16,10 +16,9 @@ const LOGO_PX: u32 = 42;
 const MARGIN: i32 = 14;
 
 const BG: [f32; 4] = [11.0, 12.0, 17.0, 0.94];
-const BORDER: [f32; 4] = [45.0, 50.0, 70.0, 1.0];
 
 unsafe extern "system" fn wnd_proc(h: HWND, m: u32, w: WPARAM, l: LPARAM) -> LRESULT {
-    DefWindowProcW(h, m, w, l)
+    unsafe { DefWindowProcW(h, m, w, l) }
 }
 
 type Px = [f32; 4];
@@ -97,110 +96,113 @@ pub fn start(s: Arc<Settings>) {
 }
 
 unsafe fn run(s: &Settings) {
-    let Ok(hinst) = GetModuleHandleW(None) else {
-        return;
-    };
-    let class = w!("RazeClickerOverlay");
+    unsafe {
+        let Ok(hinst) = GetModuleHandleW(None) else {
+            return;
+        };
+        let class = w!("RazeClickerOverlay");
 
-    let wc = WNDCLASSW {
-        lpfnWndProc: Some(wnd_proc),
-        hInstance: hinst.into(),
-        lpszClassName: class,
-        ..Default::default()
-    };
-    RegisterClassW(&wc);
-
-    let hwnd = match CreateWindowExW(
-        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-        class,
-        w!(""),
-        WS_POPUP,
-        0,
-        0,
-        OVL,
-        OVL,
-        None,
-        None,
-        Some(hinst.into()),
-        None,
-    ) {
-        Ok(h) => h,
-        Err(_) => return,
-    };
-
-    let screen = GetDC(None);
-    let mem = CreateCompatibleDC(Some(screen));
-    let bmi = BITMAPINFO {
-        bmiHeader: BITMAPINFOHEADER {
-            biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
-            biWidth: OVL,
-            biHeight: -OVL,
-            biPlanes: 1,
-            biBitCount: 32,
-            biCompression: BI_RGB.0,
+        let wc = WNDCLASSW {
+            lpfnWndProc: Some(wnd_proc),
+            hInstance: hinst.into(),
+            lpszClassName: class,
             ..Default::default()
-        },
-        ..Default::default()
-    };
-    let mut bits: *mut std::ffi::c_void = std::ptr::null_mut();
-    let Ok(bmp) = CreateDIBSection(Some(mem), &bmi, DIB_RGB_COLORS, &mut bits, None, 0) else {
-        return;
-    };
-    SelectObject(mem, bmp.into());
-    let px = render_overlay(OVL as u32);
-    std::ptr::copy_nonoverlapping(px.as_ptr(), bits as *mut u8, px.len());
+        };
+        RegisterClassW(&wc);
 
-    let blend = BLENDFUNCTION {
-        BlendOp: AC_SRC_OVER as u8,
-        BlendFlags: 0,
-        SourceConstantAlpha: 255,
-        AlphaFormat: AC_SRC_ALPHA as u8,
-    };
-    let size = SIZE { cx: OVL, cy: OVL };
-    let src = POINT { x: 0, y: 0 };
-    let _ = UpdateLayeredWindow(
-        hwnd,
-        Some(screen),
-        None,
-        Some(&size),
-        Some(mem),
-        Some(&src),
-        COLORREF(0),
-        Some(&blend),
-        ULW_ALPHA,
-    );
+        let hwnd = match CreateWindowExW(
+            WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+            class,
+            w!(""),
+            WS_POPUP,
+            0,
+            0,
+            OVL,
+            OVL,
+            None,
+            None,
+            Some(hinst.into()),
+            None,
+        ) {
+            Ok(h) => h,
+            Err(_) => return,
+        };
 
-    let mut shown = false;
-    let mut shown = false;
-    loop {
-        let want =
-            s.enabled.load(Relaxed) && s.overlay.load(Relaxed) && s.enable_clicker.load(Relaxed);
-        if want != shown {
-            if want {
-                let sw = GetSystemMetrics(SM_CXSCREEN);
-                let sh = GetSystemMetrics(SM_CYSCREEN);
+        let screen = GetDC(None);
+        let mem = CreateCompatibleDC(Some(screen));
+        let bmi = BITMAPINFO {
+            bmiHeader: BITMAPINFOHEADER {
+                biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+                biWidth: OVL,
+                biHeight: -OVL,
+                biPlanes: 1,
+                biBitCount: 32,
+                biCompression: BI_RGB.0,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        let mut bits: *mut std::ffi::c_void = std::ptr::null_mut();
+        let Ok(bmp) = CreateDIBSection(Some(mem), &bmi, DIB_RGB_COLORS, &mut bits, None, 0) else {
+            return;
+        };
+        SelectObject(mem, bmp.into());
+        let px = render_overlay(OVL as u32);
+        std::ptr::copy_nonoverlapping(px.as_ptr(), bits as *mut u8, px.len());
 
-                let (x, y) = (sw - OVL - MARGIN - OFFSET_X, MARGIN + OFFSET_Y);
+        let blend = BLENDFUNCTION {
+            BlendOp: AC_SRC_OVER as u8,
+            BlendFlags: 0,
+            SourceConstantAlpha: 255,
+            AlphaFormat: AC_SRC_ALPHA as u8,
+        };
+        let size = SIZE { cx: OVL, cy: OVL };
+        let src = POINT { x: 0, y: 0 };
+        let _ = UpdateLayeredWindow(
+            hwnd,
+            Some(screen),
+            None,
+            Some(&size),
+            Some(mem),
+            Some(&src),
+            COLORREF(0),
+            Some(&blend),
+            ULW_ALPHA,
+        );
 
-                let _ = SetWindowPos(
-                    hwnd,
-                    Some(HWND_TOPMOST),
-                    x,
-                    y,
-                    0,
-                    0,
-                    SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
-                );
-            } else {
-                let _ = ShowWindow(hwnd, SW_HIDE);
+        let _shown = false;
+        let mut shown = false;
+        loop {
+            let want = s.enabled.load(Relaxed)
+                && s.overlay.load(Relaxed)
+                && s.enable_clicker.load(Relaxed);
+            if want != shown {
+                if want {
+                    let sw = GetSystemMetrics(SM_CXSCREEN);
+                    let _sh = GetSystemMetrics(SM_CYSCREEN);
+
+                    let (x, y) = (sw - OVL - MARGIN - OFFSET_X, MARGIN + OFFSET_Y);
+
+                    let _ = SetWindowPos(
+                        hwnd,
+                        Some(HWND_TOPMOST),
+                        x,
+                        y,
+                        0,
+                        0,
+                        SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
+                    );
+                } else {
+                    let _ = ShowWindow(hwnd, SW_HIDE);
+                }
+                shown = want;
             }
-            shown = want;
-        }
 
-        let mut msg = MSG::default();
-        while PeekMessageW(&mut msg, None, 0, 0, PM_REMOVE).as_bool() {
-            let _ = DispatchMessageW(&msg);
+            let mut msg = MSG::default();
+            while PeekMessageW(&mut msg, None, 0, 0, PM_REMOVE).as_bool() {
+                let _ = DispatchMessageW(&msg);
+            }
+            std::thread::sleep(Duration::from_millis(100));
         }
-        std::thread::sleep(Duration::from_millis(100));
     }
 }

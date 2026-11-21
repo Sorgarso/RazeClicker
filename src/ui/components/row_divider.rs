@@ -1,5 +1,5 @@
 use crate::ui::theme::*;
-use egui::{Align, Layout, RichText, Ui};
+use egui::Ui;
 
 pub fn row_divider(ui: &mut Ui) {
     ui.add_space(4.0);

@@ -22,7 +22,6 @@ pub struct UiState {
     pub minimize: bool,
     pub show_dialog: bool,
     pub show_update_dialog: bool,
-    pub last_sent_size: Option<egui::Vec2>,
 }
 
 impl UiState {
@@ -36,7 +35,6 @@ impl UiState {
             minimize: false,
             show_dialog: true,
             show_update_dialog: std::env::args().any(|arg| arg == "--update"),
-            last_sent_size: None,
         }
     }
 }

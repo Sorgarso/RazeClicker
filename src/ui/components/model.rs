@@ -1,8 +1,7 @@
 use crate::ui::components::header_button::close_button::close_button;
 use crate::ui::theme::*;
 use egui::{
-    Align2, Area, Color32, CornerRadius, Frame, Id, Key, Margin, Order, Sense, Shadow, Stroke, Ui,
-    vec2,
+    Align2, Area, Color32, CornerRadius, Frame, Id, Margin, Order, Sense, Shadow, Stroke, Ui, vec2,
 };
 
 pub fn modal(
@@ -10,7 +9,7 @@ pub fn modal(
     id: &str,
     open: &mut bool,
     width: f32,
-    height: f32,
+    _height: f32,
     add_contents: impl FnOnce(&mut Ui),
 ) {
     if !*open {
@@ -26,7 +25,7 @@ pub fn modal(
         .fixed_pos(screen.min)
         .interactable(true)
         .show(ctx, |ui| {
-            let (rect, resp) = ui.allocate_exact_size(screen.size(), Sense::click_and_drag());
+            let (rect, _resp) = ui.allocate_exact_size(screen.size(), Sense::click_and_drag());
             ui.painter().rect_filled(
                 rect,
                 CornerRadius::same(20),

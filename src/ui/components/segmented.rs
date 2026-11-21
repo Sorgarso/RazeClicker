@@ -1,5 +1,5 @@
 use crate::ui::{anim::animate_ease::*, fonts::fonts::regular, theme::*};
-use egui::{Align2, Color32, CornerRadius, Id, Rect, Sense, Ui, Vec2, pos2};
+use egui::{Align2, Color32, CornerRadius, Rect, Sense, Ui, Vec2, pos2};
 
 fn lerp_color(a: Color32, b: Color32, t: f32) -> Color32 {
     let l = |x: u8, y: u8| (x as f32 + (y as f32 - x as f32) * t).round() as u8;
@@ -16,10 +16,8 @@ pub fn segmented(ui: &mut Ui, value: &mut usize, items: &[&str], item_w: f32) {
     let n = items.len();
     let total_w = item_w * n as f32 + gap * (n.saturating_sub(1)) as f32;
 
-    let (full_rect, _) = ui.allocate_exact_size(Vec2::new(total_w, ROW_H), Sense::hover());
-    let base_id = ui
-        .id()
-        .with(("segmented", full_rect.min.x as i32, full_rect.min.y as i32));
+    let (full_rect, alloc) = ui.allocate_exact_size(Vec2::new(total_w, ROW_H), Sense::hover());
+    let base_id = alloc.id;
     let ctx = ui.ctx().clone();
 
     let item_rect = |i: usize| {
@@ -51,8 +49,15 @@ pub fn segmented(ui: &mut Ui, value: &mut usize, items: &[&str], item_w: f32) {
         ui.painter().rect_filled(rect, CornerRadius::same(7), bg);
     }
 
-    let target_x = item_rect(*value).min.x;
-    let anim_x = animate_ease(&ctx, base_id.with("pill_x"), target_x, 0.3, ease_out_cubic);
+    let target_rel = *value as f32 * (item_w + gap);
+    let anim_rel = animate_ease(
+        &ctx,
+        base_id.with("pill_x"),
+        target_rel,
+        0.3,
+        ease_out_cubic,
+    );
+    let anim_x = full_rect.min.x + anim_rel;
 
     let shrink = press[*value] * 1.5;
     let pill =
@@ -67,7 +72,7 @@ pub fn segmented(ui: &mut Ui, value: &mut usize, items: &[&str], item_w: f32) {
         let scale = shrunk.height() / rect.height();
 
         let cover = (1.0 - ((anim_x - rect.min.x).abs() / (item_w + gap))).clamp(0.0, 1.0);
-        let color = lerp_color(MUTED, Color32::WHITE, cover);
+        let color = lerp_color(MUTED, ON_ACCENT, cover);
 
         ui.painter().text(
             rect.center(),

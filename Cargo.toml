@@ -1,6 +1,6 @@
 [package]
 name = "RazeClicker"
-version = "2.2.0"
+version = "2.3.0"
 edition = "2024"
 license = "MIT"
 
@@ -44,10 +44,10 @@ winres = "0.1"
 
 [profile.release]
 opt-level = 3
-lto = true
+lto = "fat"
 codegen-units = 1
 panic = "unwind"
-strip = false
+strip = true
 debug = 0
 
 

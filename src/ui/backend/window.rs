@@ -3,25 +3,17 @@ use std::sync::Arc;
 use std::sync::atomic::Ordering::Relaxed;
 use std::time::{Duration, Instant};
 
-use egui::{Color32, FontFamily, FontId, Frame, Margin, RichText, Stroke, StrokeKind, Theme, Vec2};
 use egui_winit::winit::{
     application::ApplicationHandler,
     dpi::LogicalSize,
     event::{StartCause, WindowEvent},
     event_loop::{ActiveEventLoop, ControlFlow, DeviceEvents, EventLoop},
     raw_window_handle::{HasWindowHandle, RawWindowHandle},
-    window::{Icon, Window, WindowId, WindowLevel},
+    window::{Window, WindowId, WindowLevel},
 };
 use windows::Win32::{
     Foundation::{HWND, LPARAM, WPARAM},
-    Graphics::Dwm::DwmExtendFrameIntoClientArea,
-    UI::{
-        Controls::MARGINS,
-        WindowsAndMessaging::{
-            GWL_EXSTYLE, GetWindowLongPtrW, IMAGE_ICON, LR_DEFAULTSIZE, LR_SHARED, LoadImageW,
-            SetWindowLongPtrW, WM_SETICON, WS_EX_LAYERED, WS_EX_NOREDIRECTIONBITMAP,
-        },
-    },
+    UI::WindowsAndMessaging::{IMAGE_ICON, LR_DEFAULTSIZE, LR_SHARED, LoadImageW, WM_SETICON},
 };
 use windows::core::PCWSTR;
 
@@ -35,10 +27,9 @@ use crate::{
     update::Updater,
 };
 
-const MAX_FPS: f32 = 60.0;
 const DRAG_QUIET: Duration = Duration::from_millis(120);
 const CLEAR: [f32; 4] = [0.0, 0.0, 0.0, 0.0];
-
+const MAX_FPS: f32 = 60.0;
 struct Gfx {
     window: Window,
     dx: Dx,
@@ -61,13 +52,11 @@ impl ApplicationHandler for Host {
             return;
         }
 
-        use egui_winit::winit::platform::windows::WindowAttributesExtWindows;
-
         let window = el
             .create_window(
                 Window::default_attributes()
                     .with_title("RazeClicker")
-                    .with_inner_size(LogicalSize::new(890.0, 460.0))
+                    .with_inner_size(LogicalSize::new(1040.0, 620.0))
                     .with_resizable(false)
                     .with_decorations(false)
                     .with_transparent(true),
@@ -85,7 +74,7 @@ impl ApplicationHandler for Host {
 
             let icon = LoadImageW(
                 Some(instance.into()),
-                PCWSTR(1 as *const u16),
+                PCWSTR(std::ptr::dangling::<u16>()),
                 IMAGE_ICON,
                 0,
                 0,
@@ -160,6 +149,12 @@ impl ApplicationHandler for Host {
         if let WindowEvent::RedrawRequested = event {
             *last_frame = Instant::now();
 
+            let size = g.window.inner_size();
+            if size.width == 0 || size.height == 0 || g.window.is_minimized() == Some(true) {
+                el.set_control_flow(ControlFlow::Wait);
+                return;
+            }
+
             if let Some(t) = *last_move {
                 if t.elapsed() < DRAG_QUIET {
                     el.set_control_flow(ControlFlow::WaitUntil(t + DRAG_QUIET));
@@ -190,7 +185,7 @@ impl ApplicationHandler for Host {
 
             if st.minimize {
                 st.minimize = false;
-                let _ = g.window.set_minimized(true);
+                g.window.set_minimized(true);
             }
 
             if st.close {
@@ -224,7 +219,7 @@ impl ApplicationHandler for Host {
                 g.window.request_redraw();
             }
 
-            let min_frame = Duration::from_secs_f32(1.0 / MAX_FPS);
+            let _min_frame = Duration::from_secs_f32(1.0 / MAX_FPS);
             let delay = viewports
                 .get(&egui::ViewportId::ROOT)
                 .map(|v| v.repaint_delay)
@@ -254,7 +249,7 @@ impl ApplicationHandler for Host {
                 match *dirty_since {
                     None => {
                         *dirty_since = Some(Instant::now());
-                        ctx.request_repaint_after(Duration::from_secs(1)); // иначе окно уснёт и сейв не сработает
+                        ctx.request_repaint_after(Duration::from_secs(1));
                     }
                     Some(t) if t.elapsed() >= Duration::from_secs(1) => {
                         config::save(&cur);

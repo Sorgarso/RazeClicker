@@ -1,6 +1,6 @@
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
-use egui::{Align2, CornerRadius, FontFamily, FontId, Sense, Ui, Vec2};
+use egui::{Align2, CornerRadius, Sense, Ui, Vec2};
 pub fn coord_row(ui: &mut Ui, index: usize, x: f32, y: f32) {
     let (rect, resp) =
         ui.allocate_exact_size(Vec2::new(ui.available_width(), 32.0), Sense::hover());

@@ -1,142 +1,163 @@
 use crate::i18n::{T, tr};
 use crate::model::settings::Settings;
-use crate::platform::windows::hooks;
 use crate::platform::windows::hooks::start_pick_location;
-use crate::ui::components::logo_button::logo_button;
-use crate::ui::components::toggle::toggle;
+use crate::ui::anim::page_reveal::staggered;
 use crate::ui::components::{
-    button, card::card, card_header::card_header, card_logo::card_logo, coord_row::coord_row,
-    hotkey_input::hotkey_input, input_text::input_text, logo_button,
-    outlined_button::outlined_button, radio_card::radio_card, row_label::row_label,
-    segmented::segmented, toggle,
+    card::card, coord_row::coord_row, drift::drift, logo_button::logo_button,
+    outlined_button::outlined_button, page_title::page_title, toggle::toggle,
 };
 use crate::ui::fonts::fa_data::*;
-use crate::ui::fonts::fonts::icon_font;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
 use egui::{Align, Layout, RichText, Ui, Vec2};
 use std::sync::Arc;
 use std::sync::atomic::Ordering::Relaxed;
 
-const CARD_H: f32 = 260.0;
+const CARD_H: f32 = 240.0;
+const LEFT_W: f32 = 360.0;
+const RIGHT_W: f32 = 290.0;
+const GAP: f32 = 28.0;
+const BTN_H: f32 = 48.0;
+const TOGGLE_H: f32 = 30.0;
+const V_GAP: f32 = 14.0;
 
 pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
-    let mut pick_location_enabled = s.pick_location_enabled.load(Relaxed);
-    let points_list = s.pos.lock().unwrap().clone();
+    let mut pick_enabled = s.pick_location_enabled.load(Relaxed);
+    let points = s.pos.lock().unwrap().clone();
 
-    ui.horizontal(|ui| {
-        card_logo(ui, ICON_FA_MAP_LOCATION_DOT);
-        ui.add_space(7.0);
-        ui.vertical(|ui| {
-            ui.add_space(3.0);
-            ui.spacing_mut().item_spacing.y = 4.0;
-            ui.label(
-                RichText::new(tr(T::PickLocation))
-                    .font(regular(26.0))
-                    .color(TEXT),
-            );
-            ui.label(
-                RichText::new(tr(T::PickLocationSub))
-                    .size(14.0)
-                    .color(MUTED),
-            );
-        });
+    staggered(ui, 0, |ui| {
+        page_title(
+            ui,
+            tr(T::PickLocationEyebrow),
+            tr(T::PickLocation),
+            tr(T::PickLocationSub),
+        );
     });
 
-    ui.add_space(16.0);
+    ui.add_space(52.0);
 
-    let gap = 14.0;
-    let avail = ui.available_width() - gap;
-    let w1 = avail / 1.75;
-    let w2 = w1 * 0.75;
+    let avail = ui.available_width();
+    let k = ((avail - GAP) / (LEFT_W + RIGHT_W)).min(1.0);
+    let lw = LEFT_W * k;
+    let rw = RIGHT_W * k;
+    let pad = ((avail - (lw + rw + GAP)) / 2.0).max(0.0);
+
+    let m = MARGIN_BASE as f32 * 2.0;
+    let left_h = CARD_H + m;
+    let right_h = (TOGGLE_H + m) + V_GAP + BTN_H + V_GAP + BTN_H;
 
     ui.horizontal_top(|ui| {
-        ui.spacing_mut().item_spacing.x = gap;
-        ui.spacing_mut().item_spacing.y = 14.0;
+        ui.spacing_mut().item_spacing.x = GAP;
+        ui.add_space(pad);
 
-        ui.allocate_ui_with_layout(Vec2::new(w1, 220.0), Layout::top_down(Align::Min), |ui| {
-            let card_size = Vec2::new(ui.available_width(), CARD_H);
+        drift(
+            ui,
+            "pick_left",
+            Vec2::new(lw, left_h),
+            1.0,
+            Layout::top_down(Align::Min),
+            |ui| points_card(ui, &points, lw),
+        );
 
-            ui.allocate_ui(card_size, |ui| {
-                ui.vertical(|ui| {
-                    ui.spacing_mut().item_spacing.y = 1.0;
-                    card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
+        drift(
+            ui,
+            "pick_right",
+            Vec2::new(rw, right_h),
+            1.0,
+            Layout::top_down(Align::Min),
+            |ui| {
+                ui.spacing_mut().item_spacing.y = V_GAP;
+
+                card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
+                    ui.set_width(rw - m);
+                    ui.set_height(TOGGLE_H);
+                    ui.horizontal_centered(|ui| {
                         ui.label(
-                            RichText::new(format!("{}: {}", tr(T::SavedPoints), points_list.len()))
-                                .font(regular(18.0))
-                                .strong()
-                                .color(TEXT),
+                            RichText::new(tr(T::EnablePickLocation))
+                                .font(regular(14.0))
+                                .color(MUTED),
                         );
-                        ui.add_space(17.0);
-                        ui.separator();
-                        if points_list.len() != 0 {
-                            egui::ScrollArea::vertical()
-                                .id_salt("saved_points_scroll")
-                                .max_height(CARD_H)
-                                .auto_shrink([false, false])
-                                .show(ui, |ui| {
-                                    for (i, pos) in s.pos.lock().unwrap().iter().enumerate() {
-                                        coord_row(ui, i, pos.x, pos.y);
-                                    }
-                                });
-                        } else {
-                            ui.allocate_ui_with_layout(
-                                ui.available_size(),
-                                Layout::top_down(Align::Center),
-                                |ui| {
-                                    ui.centered_and_justified(|ui| {
-                                        ui.label(tr(T::NoSavedPoints));
-                                    });
-                                },
-                            );
-                        }
+                        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                            toggle(ui, &mut pick_enabled);
+                        });
                     });
                 });
-            });
-        });
 
-        ui.allocate_ui_with_layout(Vec2::new(w2, 250.0), Layout::top_down(Align::Min), |ui| {
-            card(ui, 19, 10, 10, |ui| {
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x = 16.0;
-                    row_label(ui, tr(T::EnablePickLocation));
+                if logo_button(
+                    ui,
+                    ACCENT,
+                    ACCENT_HOVER,
+                    12,
+                    tr(T::PickFromScreen),
+                    Some(ICON_FA_CROSSHAIRS),
+                    Vec2::new(rw, BTN_H),
+                )
+                .clicked()
+                    && pick_enabled
+                {
+                    s.request_minimize.store(true, Relaxed);
+                    start_pick_location();
+                }
 
-                    ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        toggle(ui, &mut pick_location_enabled);
-                    });
-                });
-            });
-            if logo_button(
-                ui,
-                ACCENT,
-                ACCENT_HOVER,
-                10,
-                tr(T::PickFromScreen),
-                Some(ICON_FA_CROSSHAIRS),
-                Vec2::new(280.0, 50.0),
-            )
-            .clicked()
-                && pick_location_enabled
-            {
-                s.request_minimize.store(true, Relaxed);
-                start_pick_location();
-            }
-            if outlined_button(
-                ui,
-                DANGER_IDLE,
-                DANGER_HOVER,
-                10,
-                tr(T::ClearAll),
-                Some(ICON_FA_TRASH),
-                Vec2::new(ui.available_width(), 50.0),
-            )
-            .clicked()
-            {
-                s.pos.lock().unwrap().clear();
-            }
-        });
+                if outlined_button(
+                    ui,
+                    DANGER_IDLE,
+                    DANGER_HOVER,
+                    12,
+                    tr(T::ClearAll),
+                    Some(ICON_FA_TRASH),
+                    Vec2::new(rw, BTN_H),
+                )
+                .clicked()
+                {
+                    s.pos.lock().unwrap().clear();
+                }
+            },
+        );
     });
 
-    s.pick_location_enabled
-        .store(pick_location_enabled, Relaxed);
+    if pick_enabled != s.pick_location_enabled.load(Relaxed) {
+        s.pick_location_enabled.store(pick_enabled, Relaxed);
+    }
+
+    ui.add_space(16.0);
+}
+
+fn points_card(ui: &mut Ui, points: &[egui::Pos2], w: f32) {
+    card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
+        ui.spacing_mut().item_spacing = Vec2::new(10.0, 10.0);
+        ui.set_width(w - MARGIN_BASE as f32 * 2.0);
+        ui.set_height(CARD_H);
+
+        ui.label(
+            RichText::new(format!("{}: {}", tr(T::SavedPoints), points.len()))
+                .font(regular(17.0))
+                .color(TEXT),
+        );
+        ui.separator();
+
+        if points.is_empty() {
+            let h = ui.available_height();
+            ui.allocate_ui_with_layout(
+                Vec2::new(ui.available_width(), h),
+                Layout::centered_and_justified(egui::Direction::TopDown),
+                |ui| {
+                    ui.label(
+                        RichText::new(tr(T::NoSavedPoints))
+                            .font(regular(13.0))
+                            .color(MUTED),
+                    );
+                },
+            );
+        } else {
+            egui::ScrollArea::vertical()
+                .id_salt("saved_points_scroll")
+                .auto_shrink([false, false])
+                .show(ui, |ui| {
+                    for (i, pos) in points.iter().enumerate() {
+                        coord_row(ui, i, pos.x, pos.y);
+                    }
+                });
+        }
+    });
 }

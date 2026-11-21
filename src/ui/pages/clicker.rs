@@ -1,102 +1,135 @@
 use crate::i18n::{T, tr};
-
 use crate::model::{key::key_name, settings::Settings};
-use crate::platform::windows::hooks;
-use crate::platform::windows::hooks::start;
 use crate::ui::Arc;
+use crate::ui::anim::page_reveal::staggered;
 use crate::ui::components::{
-    card::card, card_header::card_header, card_logo::card_logo, dim_scope::dim_scope,
-    hotkey_input::hotkey_input, radio_card::radio_card, row_label::row_label, segmented::segmented,
-    toggle::toggle,
+    bind_field::bind_field, card::card, card_header::card_header, click_rate::click_rate,
+    drift::drift, form_row::form_row, page_title::page_title, radio_card::radio_card,
+    segmented::segmented, start_button::start_button, status_line::status_line,
 };
 use crate::ui::fonts::fa_data::*;
-use crate::ui::fonts::fonts::icon_font;
-use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
-use egui::{Align, Layout, RichText, Ui, Vec2};
+use egui::{Align, Layout, Ui, Vec2};
 use std::sync::atomic::Ordering::Relaxed;
 
-const CARD_H: f32 = 190.0;
+const CARD_H: f32 = 205.0;
+const START_D: f32 = 150.0;
+const CENTER_W: f32 = START_D + 60.0;
+const GAP: f32 = 44.0;
+const SIDE_W: f32 = 270.0;
 
 pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
     let mut mode = s.mode.load(Relaxed);
-    let mut enable_clicker = s.enable_clicker.load(Relaxed);
+    let mut enabled = s.enable_clicker.load(Relaxed);
 
-    ui.horizontal(|ui| {
-        card_logo(ui, ICON_FA_COMPUTER_MOUSE);
-        ui.add_space(7.0);
-        ui.vertical(|ui| {
-            ui.add_space(3.0);
-            ui.spacing_mut().item_spacing.y = 4.0;
-            ui.label(
-                RichText::new(tr(T::Clicker))
-                    .font(regular(26.0))
-                    .color(TEXT),
-            );
-            ui.label(
-                RichText::new(tr(T::MouseClickerSub))
-                    .size(14.0)
-                    .color(MUTED),
-            );
-        });
+    staggered(ui, 0, |ui| {
+        page_title(
+            ui,
+            tr(T::ClickerEyebrow),
+            tr(T::Clicker),
+            tr(T::ClickerSubtitle),
+        );
     });
 
-    ui.add_space(16.0);
+    ui.add_space(52.0);
 
-    let gap = 16.0;
-    let avail = ui.available_width() - gap;
-    let w1 = avail / 1.75;
-    let w2 = w1 * 0.75;
+    let side = ((ui.available_width() - CENTER_W - GAP * 2.0) / 2.0).min(SIDE_W);
+    let total = side * 2.0 + CENTER_W + GAP * 2.0;
+    let pad = ((ui.available_width() - total) / 2.0).max(0.0);
+    let column_h = CARD_H + MARGIN_BASE as f32 * 2.0;
 
     ui.horizontal_top(|ui| {
-        ui.spacing_mut().item_spacing.x = gap;
+        ui.spacing_mut().item_spacing.x = GAP;
+        ui.add_space(pad);
+
         ui.allocate_ui_with_layout(
-            Vec2::new(w1, 0.0),
+            Vec2::new(side, column_h),
             Layout::top_down(Align::Min),
-            |ui| match mode {
-                0 => mouse_settings(ui, s, &mut enable_clicker),
-                1 => keyboard_settings(ui, s, &mut enable_clicker),
-                _ => {}
+            |ui| {
+                drift(
+                    ui,
+                    "left",
+                    Vec2::new(side, column_h),
+                    1.0,
+                    Layout::top_down(Align::Min),
+                    |ui| match mode {
+                        0 => mouse_settings(ui, s, side),
+                        _ => keyboard_settings(ui, s, side),
+                    },
+                );
             },
         );
 
-        ui.allocate_ui_with_layout(Vec2::new(w2, 0.0), Layout::top_down(Align::Min), |ui| {
-            card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
-                ui.spacing_mut().item_spacing = Vec2::new(10.0, 10.0);
-                ui.set_min_height(CARD_H);
+        ui.allocate_ui_with_layout(
+            Vec2::new(CENTER_W, column_h),
+            Layout::top_down(Align::Center),
+            |ui| {
+                drift(
+                    ui,
+                    "center",
+                    Vec2::new(CENTER_W, column_h),
+                    0.5,
+                    Layout::top_down(Align::Center),
+                    |ui| {
+                        let content_h = START_D + 60.0 + 26.0;
+                        ui.add_space(((column_h - content_h) / 2.0).max(0.0));
 
-                dim_scope(ui, "mode", enable_clicker, |ui| {
-                    card_header(ui, ICON_FA_CIRCLE_PLAY, tr(T::Mode), tr(T::ModeSub));
-                    ui.add_space(4.0);
+                        let hint = if enabled {
+                            key_name(s.hotkey.load(Relaxed)).to_string()
+                        } else {
+                            tr(T::ReadyWhenYouAre).to_string()
+                        };
 
-                    if radio_card(ui, mode != 1, tr(T::MouseMode)).clicked() {
-                        mode = 0;
-                    }
-                    if radio_card(ui, mode == 1, tr(T::KeyboardMode)).clicked() {
-                        mode = 1;
-                    }
-                    ui.horizontal_centered(|ui| {
-                        let mut toggle_mode = s.toggle.load(Relaxed) as usize;
-                        segmented(ui, &mut toggle_mode, &[tr(T::Hold), tr(T::Toggle)], 120.0);
-                        s.toggle.store(toggle_mode == 1, Relaxed);
-                    });
-                });
-            });
-        });
+                        if start_button(
+                            ui,
+                            enabled,
+                            if enabled { tr(T::Stop) } else { tr(T::Start) },
+                            &hint,
+                            START_D,
+                        )
+                        .clicked()
+                        {
+                            enabled = !enabled;
+                        }
+
+                        status_line(
+                            ui,
+                            enabled,
+                            tr(T::CurrentlyStatus),
+                            if enabled { tr(T::Running) } else { tr(T::Idle) },
+                        );
+                    },
+                );
+            },
+        );
+
+        ui.allocate_ui_with_layout(
+            Vec2::new(side, column_h),
+            Layout::top_down(Align::Min),
+            |ui| {
+                drift(
+                    ui,
+                    "right",
+                    Vec2::new(side, column_h),
+                    1.0,
+                    Layout::top_down(Align::Min),
+                    |ui| activation_card(ui, s, &mut mode, side),
+                );
+            },
+        );
     });
 
     if mode != s.mode.load(Relaxed) {
         s.mode.store(mode, Relaxed);
     }
-
-    if enable_clicker != s.enable_clicker.load(Relaxed) {
-        s.enable_clicker.store(enable_clicker, Relaxed);
+    if enabled != s.enable_clicker.load(Relaxed) {
+        s.enable_clicker.store(enabled, Relaxed);
     }
 
     ui.add_space(16.0);
 }
 
-fn mouse_settings(ui: &mut Ui, s: &Arc<Settings>, enable_clicker: &mut bool) {
+fn mouse_settings(ui: &mut Ui, s: &Arc<Settings>, w: f32) {
     let mut cps = s.cps();
     let mut unit = s.unit.load(Relaxed);
     let mut button = s.button.load(Relaxed);
@@ -105,51 +138,38 @@ fn mouse_settings(ui: &mut Ui, s: &Arc<Settings>, enable_clicker: &mut bool) {
     let hotkey = s.hotkey.load(Relaxed);
 
     card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
-        ui.spacing_mut().item_spacing = Vec2::new(10.0, 12.0);
-        ui.set_min_height(CARD_H);
+        ui.spacing_mut().item_spacing = Vec2::new(10.0, 14.0);
+        ui.set_width(w - MARGIN_BASE as f32 * 2.0);
+        ui.set_height(CARD_H);
 
-        ui.horizontal(|ui| {
-            dim_scope(ui, "header", *enable_clicker, |ui| {
-                card_header(
-                    ui,
-                    ICON_FA_GAUGE_HIGH,
-                    tr(T::ClickSettings),
-                    tr(T::ClickSettingsSub),
-                );
-            });
+        card_header(
+            ui,
+            ICON_FA_GAUGE_HIGH,
+            tr(T::ClickInterval),
+            tr(T::ClickIntervalSub),
+        );
+        ui.add_space(2.0);
 
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
-                toggle(ui, enable_clicker);
-            });
+        click_rate(ui, &mut cps, &mut unit);
+
+        form_row(ui, tr(T::MouseButton), |ui| {
+            segmented(ui, &mut button, &[tr(T::Left), tr(T::Right)], 70.0);
         });
 
-        ui.add_space(4.0);
-
-        dim_scope(ui, "body", *enable_clicker, |ui| {
-            click_rate(ui, &mut cps, &mut unit);
-
-            ui.horizontal(|ui| {
-                row_label(ui, tr(T::MouseButton));
-                segmented(ui, &mut button, &[tr(T::Left), tr(T::Right)], 64.0);
-            });
-
-            ui.horizontal(|ui| {
-                row_label(ui, tr(T::Hotkey));
-                if hotkey_input(ui, &key_name(hotkey), capturing) {
-                    s.capturing.store(!capturing, Relaxed);
-                }
-            });
+        form_row(ui, tr(T::Hotkey), |ui| {
+            if bind_field(ui, &key_name(hotkey), capturing) {
+                s.capturing.store(!capturing, Relaxed);
+            }
         });
     });
 
     save_common_settings(s, cps, unit);
-
     if button != s.button.load(Relaxed) {
         s.button.store(button, Relaxed);
     }
 }
 
-fn keyboard_settings(ui: &mut Ui, s: &Arc<Settings>, enable_clicker: &mut bool) {
+fn keyboard_settings(ui: &mut Ui, s: &Arc<Settings>, w: f32) {
     let mut cps = s.cps();
     let mut unit = s.unit.load(Relaxed);
 
@@ -159,73 +179,60 @@ fn keyboard_settings(ui: &mut Ui, s: &Arc<Settings>, enable_clicker: &mut bool) 
     let key_button = s.key_button.load(Relaxed);
 
     card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
-        ui.spacing_mut().item_spacing = Vec2::new(10.0, 12.0);
-        ui.set_min_height(CARD_H);
-        ui.horizontal(|ui| {
-            dim_scope(ui, "header", *enable_clicker, |ui| {
-                card_header(
-                    ui,
-                    ICON_FA_GAUGE_HIGH,
-                    tr(T::ClickSettings),
-                    tr(T::ClickSettingsSub),
-                );
-            });
-            ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
-                toggle(ui, enable_clicker);
-            });
+        ui.spacing_mut().item_spacing = Vec2::new(10.0, 14.0);
+        ui.set_width(w - MARGIN_BASE as f32 * 2.0);
+        ui.set_height(CARD_H);
+
+        card_header(
+            ui,
+            ICON_FA_GAUGE_HIGH,
+            tr(T::ClickInterval),
+            tr(T::ClickIntervalSub),
+        );
+        ui.add_space(2.0);
+
+        click_rate(ui, &mut cps, &mut unit);
+
+        form_row(ui, tr(T::Hotkey), |ui| {
+            if bind_field(ui, &key_name(hotkey), capturing) {
+                s.capturing.store(!capturing, Relaxed);
+            }
         });
 
-        ui.add_space(4.0);
-
-        dim_scope(ui, "body", *enable_clicker, |ui| {
-            click_rate(ui, &mut cps, &mut unit);
-            ui.horizontal(|ui| {
-                row_label(ui, tr(T::Hotkey));
-                if hotkey_input(ui, &key_name(hotkey), capturing) {
-                    s.capturing.store(!capturing, Relaxed);
-                }
-            });
-            ui.horizontal(|ui| {
-                row_label(ui, tr(T::KeyboardKey));
-                if hotkey_input(ui, &key_name(key_button), key_capturing) {
-                    s.capturing_key_button.store(!key_capturing, Relaxed);
-                }
-            });
+        form_row(ui, tr(T::KeyboardKey), |ui| {
+            if bind_field(ui, &key_name(key_button), key_capturing) {
+                s.capturing_key_button.store(!key_capturing, Relaxed);
+            }
         });
     });
 
     save_common_settings(s, cps, unit);
 }
 
-fn click_rate(ui: &mut Ui, cps: &mut f32, unit: &mut usize) {
-    ui.horizontal(|ui| {
-        row_label(ui, tr(T::Clicks));
+fn activation_card(ui: &mut Ui, s: &Arc<Settings>, mode: &mut usize, w: f32) {
+    card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
+        ui.spacing_mut().item_spacing = Vec2::new(10.0, 14.0);
+        ui.set_width(w - MARGIN_BASE as f32 * 2.0);
+        ui.set_height(CARD_H);
 
-        ui.scope(|ui| {
-            ui.style_mut()
-                .text_styles
-                .insert(egui::TextStyle::Button, regular(15.0));
-
-            ui.add_sized(
-                [90.0, ROW_H],
-                egui::DragValue::new(cps)
-                    .range(1.0..=1000.0)
-                    .speed(0.5)
-                    .max_decimals(0),
-            );
-        });
-
-        segmented(
+        card_header(
             ui,
-            unit,
-            &[
-                tr(T::UnitSec),
-                tr(T::UnitMin),
-                tr(T::UnitHour),
-                tr(T::UnitDay),
-            ],
-            40.0,
+            ICON_FA_CIRCLE_PLAY,
+            tr(T::Activation),
+            tr(T::ActivationSub),
         );
+        ui.add_space(2.0);
+
+        if radio_card(ui, *mode != 1, tr(T::MouseMode)).clicked() {
+            *mode = 0;
+        }
+        if radio_card(ui, *mode == 1, tr(T::KeyboardMode)).clicked() {
+            *mode = 1;
+        }
+
+        let mut toggle_mode = s.toggle.load(Relaxed) as usize;
+        segmented(ui, &mut toggle_mode, &[tr(T::Hold), tr(T::Toggle)], 115.0);
+        s.toggle.store(toggle_mode == 1, Relaxed);
     });
 }
 
@@ -233,7 +240,6 @@ fn save_common_settings(s: &Settings, cps: f32, unit: usize) {
     if cps != s.cps() {
         s.set_cps(cps);
     }
-
     if unit != s.unit.load(Relaxed) {
         s.unit.store(unit, Relaxed);
     }

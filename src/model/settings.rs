@@ -6,14 +6,13 @@ use std::{
     time::Duration,
 };
 
-use egui::{Pos2, Vec2};
+use egui::Pos2;
 
 use crate::{
     model::recording::{REC_IDLE, RecEvent},
     platform::windows::hooks::Hooks,
 };
 pub const MOUSE_MODE: usize = 0;
-pub const KEYBOARD_MODE: usize = 1;
 
 pub const TOGGLE: bool = false;
 
@@ -32,7 +31,6 @@ pub struct Settings {
     pub pos: Mutex<Vec<Pos2>>,
     pub pick_location_enabled: AtomicBool,
     pub request_minimize: AtomicBool,
-    pub hooks: Mutex<Option<Hooks>>,
     pub rec_state: AtomicU8, // REC_IDLE / RECORDING / PLAYING
     pub rec_track: Mutex<Vec<RecEvent>>,
     pub play_loops: AtomicU32,     // 0 = бесконечно
@@ -46,6 +44,8 @@ pub struct Settings {
     pub always_on_top: AtomicBool,
     pub click_limit_enabled: AtomicBool,
     pub click_limit: AtomicU32,
+    pub ambient: AtomicBool,
+    pub parallax: AtomicBool,
 }
 
 impl Settings {
@@ -65,7 +65,6 @@ impl Settings {
             pos: Mutex::new(Vec::new()),
             pick_location_enabled: AtomicBool::new(false),
             request_minimize: AtomicBool::new(false),
-            hooks: Mutex::new(None),
             rec_state: AtomicU8::new(REC_IDLE),
             rec_track: Mutex::new(Vec::new()),
             play_loops: AtomicU32::new(1),
@@ -79,6 +78,8 @@ impl Settings {
             always_on_top: AtomicBool::new(false),
             click_limit_enabled: AtomicBool::new(false),
             click_limit: AtomicU32::new(100),
+            ambient: AtomicBool::new(false),
+            parallax: AtomicBool::new(false),
         }
     }
 
@@ -133,6 +134,8 @@ impl Settings {
         self.enable_clicker.store(false, Relaxed);
         self.click_limit_enabled.store(false, Relaxed);
         self.click_limit.store(100, Relaxed);
+        self.ambient.store(false, Relaxed);
+        self.parallax.store(false, Relaxed);
     }
 }
 

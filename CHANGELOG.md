@@ -2,6 +2,29 @@
 
 All notable changes to RazeClicker are documented here.
 
+## [2.3.0] - 2026-11-21
+
+### Added
+- Added Ambient Effects — subtle background lighting, atmospheric effects, and visual elements that give the interface more depth.
+- Added Card Motion — interactive cards now subtly move away from the cursor, creating a more dynamic and responsive interface.
+- Added smooth page transition animations for a more fluid navigation experience.
+
+### Improved
+- Completely redesigned the overall visual style of RazeClicker with a new color palette, updated styling, and a more modern appearance.
+- Adapted all application pages to the new design while preserving their existing functionality.
+- Redesigned the navigation layout, moving the navigation bar from the sidebar to the bottom of the window.
+- Improved the layout and positioning of interface elements across all pages.
+- Refined card styling, including backgrounds, borders, rounded corners, and spacing.
+- Improved button, toggle, and selection control styling to match the new visual identity.
+- Enhanced the overall visual consistency and user experience throughout the application.
+
+### Changed
+- Redesigned the Update dialog with an updated appearance and layout.
+- Redesigned the Changelog dialog to match the new application design.
+
+
+---
+
 
 ## [2.2.0] - 2026-11-14
 

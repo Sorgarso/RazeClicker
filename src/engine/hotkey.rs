@@ -2,14 +2,14 @@ use std::sync::{Arc, atomic::Ordering::Relaxed, mpsc::Receiver};
 
 use crate::{
     engine::recorder,
-    model::settings::{Settings, TOGGLE},
+    model::settings::Settings,
     platform::windows::hooks::{Event, InputEvent, MouseBtn},
 };
 
 const VK_ESCAPE: u32 = 0x1B;
 
 pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
-    let track = s.rec_track.lock().unwrap().clone();
+    let _track = s.rec_track.lock().unwrap().clone();
     std::thread::spawn(move || {
         let mut held = false;
 
@@ -68,7 +68,7 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
                 InputEvent::KeyUp(vk) => {
                     if vk as usize == s.hotkey.load(Relaxed) {
                         held = false;
-                        if s.toggle.load(Relaxed) == false {
+                        if !s.toggle.load(Relaxed) {
                             s.enabled.store(false, Relaxed);
                         }
                     }
@@ -92,7 +92,7 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
 
                     if vk == s.hotkey.load(Relaxed) && !held {
                         held = true;
-                        if s.toggle.load(Relaxed) == false {
+                        if !s.toggle.load(Relaxed) {
                             s.enabled.store(true, Relaxed);
                         } else {
                             s.enabled.fetch_xor(true, Relaxed);
@@ -111,7 +111,7 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
 
                     if vk == s.hotkey.load(Relaxed) {
                         held = false;
-                        if s.toggle.load(Relaxed) == false {
+                        if !s.toggle.load(Relaxed) {
                             s.enabled.store(false, Relaxed);
                         }
                     }
@@ -121,11 +121,4 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
             }
         }
     });
-}
-fn activate(s: &Settings) {
-    if s.mode.load(Relaxed) != 0 {
-        s.enabled.store(true, Relaxed); // Hold
-    } else {
-        s.enabled.fetch_xor(true, Relaxed); // Toggle
-    }
 }

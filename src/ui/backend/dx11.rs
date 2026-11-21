@@ -1,11 +1,10 @@
 use egui_directx11::{Renderer, RendererOutput};
-use windows::core::{Interface, Result};
 use windows::Win32::Foundation::{HMODULE, HWND};
 use windows::Win32::Graphics::Direct3D::*;
 use windows::Win32::Graphics::Direct3D11::*;
-use windows::Win32::Graphics::DirectComposition::*;
 use windows::Win32::Graphics::Dxgi::Common::*;
 use windows::Win32::Graphics::Dxgi::*;
+use windows::core::{Interface, Result};
 
 pub struct Dx {
     device: ID3D11Device,
@@ -34,7 +33,7 @@ impl Dx {
             let device = device.unwrap();
             let context = context.unwrap();
 
-            let dxgi: IDXGIDevice1 = device.cast()?;
+            let _dxgi: IDXGIDevice1 = device.cast()?;
             let dxgi_device: IDXGIDevice = device.cast()?;
             let adapter = dxgi_device.GetAdapter()?;
             let factory: IDXGIFactory2 = adapter.GetParent()?;

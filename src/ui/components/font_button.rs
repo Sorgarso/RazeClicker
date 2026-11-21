@@ -1,5 +1,6 @@
 use crate::ui::fonts::fonts::icon_font;
-use egui::{Color32, FontFamily, FontId, Vec2};
+use crate::ui::theme::{CARD_BORDER, MUTED};
+use egui::{Color32, Stroke, StrokeKind, Vec2};
 
 pub fn font_button(
     ui: &mut egui::Ui,
@@ -9,24 +10,42 @@ pub fn font_button(
     text: &str,
     size: Vec2,
 ) -> egui::Response {
-    let desired = size;
-    let (rect, resp) = ui.allocate_exact_size(desired, egui::Sense::click());
+    let (rect, resp) = ui.allocate_exact_size(size, egui::Sense::click());
 
-    let hovered = resp.contains_pointer();
-    let t = ui.ctx().animate_bool_with_time(resp.id, hovered, 0.2);
+    let hover_t =
+        ui.ctx()
+            .animate_bool_with_time(resp.id.with("hover"), resp.contains_pointer(), 0.2);
+    let press_t = ui.ctx().animate_bool_with_time(
+        resp.id.with("press"),
+        resp.is_pointer_button_down_on(),
+        0.1,
+    );
 
-    let bg = color_bg.lerp_to_gamma(color_hover, t);
+    let r = rect.shrink(press_t * 1.5);
+    let bg = color_bg.lerp_to_gamma(color_hover, hover_t);
+    let border = CARD_BORDER.lerp_to_gamma(
+        Color32::from_rgba_unmultiplied(222, 163, 195, 160),
+        hover_t * 0.6,
+    );
+    let fg = MUTED.lerp_to_gamma(Color32::WHITE, hover_t);
 
-    ui.painter().rect_filled(rect, corner_radius, bg);
-
-    ui.painter().text(
-        rect.center(),
+    let p = ui.painter();
+    p.rect_filled(r, corner_radius, bg);
+    p.rect_stroke(
+        r,
+        corner_radius,
+        Stroke::new(1.0, border),
+        StrokeKind::Inside,
+    );
+    p.text(
+        r.center(),
         egui::Align2::CENTER_CENTER,
         text,
         icon_font(14.0),
-        Color32::WHITE,
+        fg,
     );
-    if hovered {
+
+    if resp.hovered() {
         ui.ctx().set_cursor_icon(egui::CursorIcon::PointingHand);
     }
     resp

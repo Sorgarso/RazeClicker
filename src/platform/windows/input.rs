@@ -1,8 +1,8 @@
 use ::windows::Win32::UI::{
     Input::KeyboardAndMouse::*,
     WindowsAndMessaging::{
-        GetSystemMetrics, SetCursorPos, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN, SM_XVIRTUALSCREEN,
-        SM_YVIRTUALSCREEN,
+        GetSystemMetrics, SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN, SM_XVIRTUALSCREEN,
+        SM_YVIRTUALSCREEN, SetCursorPos,
     },
 };
 use std::{mem::size_of, time::Duration};
@@ -94,12 +94,6 @@ pub fn key_press(vk: usize, hold_ms: u64) {
     send(&[key_input(scan, false)]);
     std::thread::sleep(Duration::from_millis(hold_ms));
     send(&[key_input(scan, true)]);
-}
-
-pub fn move_mouse(x: i32, y: i32) {
-    unsafe {
-        let _ = SetCursorPos(x, y);
-    }
 }
 
 pub fn mouse_move_abs(x: i32, y: i32) {

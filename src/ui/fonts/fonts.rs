@@ -1,4 +1,3 @@
-use crate::ui::assets::{font_awesome, inter_regular};
 use egui::{FontData, FontDefinitions, FontFamily, FontId};
 use std::sync::Arc;
 pub fn icon_family() -> FontFamily {

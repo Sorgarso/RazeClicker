@@ -1,4 +1,3 @@
-use crate::i18n::{self, Lang};
 use crate::model::{config, settings::Settings};
 use crate::update::Updater;
 use crate::{engine, platform, ui};

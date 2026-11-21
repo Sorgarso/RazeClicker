@@ -21,7 +21,7 @@ pub struct Found {
 }
 
 pub async fn latest() -> Result<Option<Found>, String> {
-    let url = format!("https://api.github.com/repos/Sorgarso/RazeClicker/releases/latest");
+    let url = "https://api.github.com/repos/Sorgarso/RazeClicker/releases/latest".to_string();
     let rel: Release = reqwest::Client::new()
         .get(url)
         .header("User-Agent", UA)

@@ -26,6 +26,8 @@ pub struct Config {
     pub click_limit_enabled: bool,
     pub overlay: bool,
     pub always_on_top: bool,
+    pub ambient: bool,
+    pub parallax: bool,
 }
 
 impl Default for Config {
@@ -49,6 +51,8 @@ impl Default for Config {
             click_limit_enabled: false,
             overlay: false,
             always_on_top: false,
+            ambient: false,
+            parallax: false,
         }
     }
 }
@@ -78,6 +82,8 @@ impl Config {
             click_limit_enabled: s.click_limit_enabled.load(Relaxed),
             overlay: s.overlay.load(Relaxed),
             always_on_top: s.always_on_top.load(Relaxed),
+            ambient: s.ambient.load(Relaxed),
+            parallax: s.parallax.load(Relaxed),
         }
     }
 
@@ -102,6 +108,8 @@ impl Config {
         s.always_on_top.store(self.always_on_top, Relaxed);
         s.click_limit_enabled
             .store(self.click_limit_enabled, Relaxed);
+        s.ambient.store(self.ambient, Relaxed);
+        s.parallax.store(self.parallax, Relaxed);
     }
 }
 

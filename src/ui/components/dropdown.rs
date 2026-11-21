@@ -1,7 +1,7 @@
 use crate::ui::theme::*;
 use egui::{
-    vec2, Align2, Area, CornerRadius, FontFamily, FontId, Frame, Key, Margin, Order, Sense, Stroke,
-    StrokeKind, Ui,
+    Align2, Area, CornerRadius, FontFamily, FontId, Frame, Key, Margin, Order, Sense, Stroke,
+    StrokeKind, Ui, vec2,
 };
 
 pub fn dropdown(ui: &mut Ui, id: &str, value: &mut usize, items: &[&str], width: f32) -> bool {
@@ -97,7 +97,7 @@ pub fn dropdown(ui: &mut Ui, id: &str, value: &mut usize, items: &[&str], width:
             i.pointer.any_pressed()
                 && i.pointer
                     .interact_pos()
-                    .map_or(false, |p| !popup_rect.contains(p) && !rect.contains(p))
+                    .is_some_and(|p| !popup_rect.contains(p) && !rect.contains(p))
         });
         if changed || outside || ui.input(|i| i.key_pressed(Key::Escape)) {
             open = false;

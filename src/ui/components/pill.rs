@@ -1,5 +1,5 @@
 use crate::ui::fonts::fonts::regular;
-use egui::{vec2, Color32, CornerRadius, Sense, Ui};
+use egui::{Color32, CornerRadius, Sense, Ui, vec2};
 
 pub fn pill(ui: &mut Ui, text: impl Into<String>, color: Color32) {
     let galley = ui

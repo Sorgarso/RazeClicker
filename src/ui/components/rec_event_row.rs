@@ -2,7 +2,7 @@ use crate::model::key::key_name;
 use crate::model::recording::{Action, RecEvent};
 use crate::ui::fonts::fonts::regular;
 use crate::ui::theme::*;
-use egui::{Align2, Color32, CornerRadius, FontFamily, FontId, Sense, Ui, Vec2};
+use egui::{Align2, Color32, CornerRadius, Sense, Ui, Vec2};
 pub fn rec_event_row(ui: &mut Ui, index: usize, event: RecEvent) {
     let height = 42.0;
     let width = ui.available_width();
@@ -45,7 +45,7 @@ pub fn rec_event_row(ui: &mut Ui, index: usize, event: RecEvent) {
     let (title, subtitle, color) = match event.action {
         Action::Key { vk, down } => (
             if down { "KEY DOWN" } else { "KEY UP" },
-            format!("{}", key_name(vk as usize)),
+            key_name(vk as usize).to_string(),
             if down {
                 Color32::from_rgb(100, 190, 255)
             } else {
