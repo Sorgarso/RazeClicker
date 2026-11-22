@@ -13,7 +13,7 @@ pub fn click_rate(ui: &mut Ui, cps: &mut f32, unit: &mut usize) {
                 .text_styles
                 .insert(egui::TextStyle::Button, regular(15.0));
             ui.add_sized(
-                [56.0, ROW_H],
+                [52.0, ROW_H],
                 egui::DragValue::new(cps)
                     .range(1.0..=1000.0)
                     .speed(0.5)

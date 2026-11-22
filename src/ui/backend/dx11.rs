@@ -6,14 +6,19 @@ use windows::Win32::Graphics::Dxgi::Common::*;
 use windows::Win32::Graphics::Dxgi::*;
 use windows::core::{Interface, Result};
 
+use crate::ui::components::{ambient, ambient_pass::AmbientPass};
+
 pub struct Dx {
     device: ID3D11Device,
     context: ID3D11DeviceContext,
     swap: IDXGISwapChain1,
     rtv: Option<ID3D11RenderTargetView>,
     renderer: Renderer,
+    ambient: AmbientPass,
+    w: u32,
+    h: u32,
 }
-const SUB: u8 = 1;
+
 impl Dx {
     pub fn new(hwnd: HWND, width: u32, height: u32) -> windows::core::Result<Self> {
         unsafe {
@@ -56,12 +61,16 @@ impl Dx {
             let swap = factory.CreateSwapChainForHwnd(&device, hwnd, &desc, None, None)?;
 
             let renderer = Renderer::new(&device)?;
+            let ambient = AmbientPass::new(&device)?;
             let mut me = Self {
                 device,
                 context,
                 swap,
                 rtv: None,
                 renderer,
+                ambient,
+                w: width.max(1),
+                h: height.max(1),
             };
 
             me.make_rtv()?;
@@ -85,6 +94,8 @@ impl Dx {
         if w == 0 || h == 0 {
             return;
         }
+        self.w = w;
+        self.h = h;
         unsafe {
             self.context.OMSetRenderTargets(None, None);
             self.rtv = None;
@@ -108,6 +119,10 @@ impl Dx {
         unsafe {
             self.context.ClearRenderTargetView(&rtv, &clear);
         }
+
+        self.ambient
+            .draw(&self.context, &rtv, self.w, self.h, &ambient::params());
+
         let _ = self.renderer.render(&self.context, &rtv, egui_ctx, out);
         let t1 = std::time::Instant::now();
         unsafe {

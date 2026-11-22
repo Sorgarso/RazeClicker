@@ -15,15 +15,10 @@ pub fn minimize_button(ui: &mut egui::Ui) -> egui::Response {
 
     let r = rect.shrink(press_t * 1.5);
     let bg = MIN_IDLE.lerp_to_gamma(MIN_HOVER, hover_t);
-    let border = CARD_BORDER.lerp_to_gamma(
-        Color32::from_rgba_unmultiplied(222, 163, 195, 160),
-        hover_t * 0.6,
-    );
     let fg = MUTED.lerp_to_gamma(Color32::WHITE, hover_t);
 
     let p = ui.painter();
     p.rect_filled(r, 8, bg);
-    p.rect_stroke(r, 8, Stroke::new(1.0, border), StrokeKind::Inside);
 
     let c = r.center();
     p.line_segment(

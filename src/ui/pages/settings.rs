@@ -2,6 +2,7 @@ use crate::i18n::{Lang, T, lang, set_lang, tr};
 use crate::model::settings::Settings;
 use crate::platform::windows::autostart;
 use crate::ui::anim::page_reveal::staggered;
+use crate::ui::components::logo_button::logo_button;
 use crate::ui::components::{
     card::card, card_header::card_header, drift::drift, dropdown::dropdown,
     outlined_button::outlined_button, page_title::page_title, row_divider::row_divider,
@@ -17,7 +18,8 @@ use std::sync::atomic::Ordering::Relaxed;
 
 const TABS_W: f32 = 176.0;
 const PANE_W: f32 = 470.0;
-const PANE_H: f32 = 250.0;
+const PANE_MAX_H: f32 = 380.0;
+const HEADER_H: f32 = 56.0;
 const GAP: f32 = 20.0;
 const BTN_H: f32 = 34.0;
 
@@ -68,7 +70,7 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
     ];
 
     let m = MARGIN_BASE as f32;
-    let pane_h = PANE_H + m * 2.0;
+    let pane_h = PANE_MAX_H + m * 2.0;
     let avail = ui.available_width();
     let pane_w = PANE_W.min(avail - TABS_W - GAP).max(300.0);
     let pad = ((avail - (TABS_W + GAP + pane_w)) / 2.0).max(0.0);
@@ -106,7 +108,6 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
                         card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
                             ui.spacing_mut().item_spacing = Vec2::new(10.0, 6.0);
                             ui.set_width(pane_w - m * 2.0);
-                            ui.set_height(PANE_H);
 
                             let (icon, title, sub) = meta[cat.min(meta.len() - 1)];
                             card_header(ui, icon, title, sub);
@@ -114,7 +115,8 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
 
                             egui::ScrollArea::vertical()
                                 .id_salt(("settings_scroll", cat))
-                                .auto_shrink([false, false])
+                                .max_height(PANE_MAX_H - HEADER_H)
+                                .auto_shrink([false, true])
                                 .show(ui, |ui| match cat {
                                     0 => {
                                         setting_row(
@@ -201,7 +203,7 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>, page: &mut Page) {
                                             tr(T::ResetAllSettingsSub),
                                             130.0,
                                             |ui| {
-                                                if outlined_button(
+                                                if logo_button(
                                                     ui,
                                                     DANGER_IDLE,
                                                     DANGER_HOVER,
@@ -281,7 +283,7 @@ fn configure_button(ui: &mut Ui, text: &str) -> bool {
         rect,
         CornerRadius::same(8),
         bg,
-        Stroke::new(1.0, CARD_BORDER),
+        Stroke::new(0.0, CARD_BORDER),
         egui::StrokeKind::Inside,
     );
     ui.painter().text(

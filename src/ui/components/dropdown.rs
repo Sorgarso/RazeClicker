@@ -24,7 +24,7 @@ pub fn dropdown(ui: &mut Ui, id: &str, value: &mut usize, items: &[&str], width:
         rect,
         CornerRadius::same(10),
         bg,
-        Stroke::new(1.0, border),
+        Stroke::new(0.0, border),
         StrokeKind::Inside,
     );
     ui.painter().text(

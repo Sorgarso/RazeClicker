@@ -44,11 +44,13 @@ pub fn start_button(
     let time = ui.input(|i| i.time);
 
     let r = diameter / 2.0 - press_t * 2.0;
+    let scale = r / (diameter / 2.0);
+
     let rgba = |a: u8| Color32::from_rgba_unmultiplied(222, 163, 195, a);
     let p = ui.painter();
 
-    let glow_a = (if running { 45.0 } else { 10.0 }) + hover_t * 35.0;
-    radial_glow(p, c, r, r + 42.0, rgba(glow_a as u8));
+    let glow_a = (if running { 35.0 } else { 10.0 }) + hover_t * 25.0;
+    radial_glow(p, c, r, r + 40.0, rgba(glow_a as u8));
 
     for (i, a) in [10u8, 16, 24].iter().enumerate() {
         p.circle_stroke(
@@ -68,24 +70,24 @@ pub fn start_button(
 
     let icon = if running { ICON_FA_STOP } else { ICON_FA_PLAY };
     p.text(
-        c + Vec2::new(0.0, -26.0),
+        c + Vec2::new(0.0, -26.0 * scale),
         Align2::CENTER_CENTER,
         icon,
-        icon_font(15.0),
+        icon_font(15.0 * scale),
         START_PINK_DARK,
     );
     p.text(
         c,
         Align2::CENTER_CENTER,
         label,
-        regular(21.0),
+        regular(21.0 * scale),
         START_PINK_DARK,
     );
     p.text(
-        c + Vec2::new(0.0, 26.0),
+        c + Vec2::new(0.0, 26.0 * scale),
         Align2::CENTER_CENTER,
         &*hint,
-        regular(9.0),
+        regular(9.0 * scale),
         MUTED,
     );
 

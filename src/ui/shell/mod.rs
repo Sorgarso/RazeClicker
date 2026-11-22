@@ -6,6 +6,7 @@ use crate::i18n::{T, tr};
 use crate::ui::anim::page_reveal::page_started;
 use crate::ui::components::ambient::ambient;
 use crate::ui::components::nav_pill::nav_pill;
+use crate::ui::components::window_border::window_border;
 use crate::ui::fonts::fa_data::*;
 use crate::ui::{
     pages,
@@ -22,7 +23,7 @@ pub fn draw(ui: &mut egui::Ui, st: &mut UiState) {
             st.settings.parallax.load(Relaxed),
         );
     });
-
+    window_border(ui.ctx());
     ambient(
         ui,
         st.settings.ambient.load(Relaxed),

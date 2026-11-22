@@ -40,10 +40,11 @@ pub fn drift(
         ctx.request_repaint();
     }
 
-    ui.scope_builder(
+    let mut child = ui.new_child(
         UiBuilder::new()
+            .id_salt(("drift_child", id))
             .max_rect(base.translate(next))
             .layout(layout),
-        add,
     );
+    add(&mut child);
 }

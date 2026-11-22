@@ -9,14 +9,14 @@ use crate::ui::components::{
 };
 use crate::ui::fonts::fa_data::*;
 use crate::ui::theme::*;
-use egui::{Align, Layout, Ui, Vec2};
+use egui::{Align, Layout, Rect, Ui, UiBuilder, Vec2, pos2, vec2};
 use std::sync::atomic::Ordering::Relaxed;
 
-const CARD_H: f32 = 205.0;
+const CARD_H: f32 = 218.0;
 const START_D: f32 = 150.0;
 const CENTER_W: f32 = START_D + 60.0;
 const GAP: f32 = 44.0;
-const SIDE_W: f32 = 270.0;
+const SIDE_W: f32 = 285.0;
 
 pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
     let mut mode = s.mode.load(Relaxed);
@@ -31,7 +31,7 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
         );
     });
 
-    ui.add_space(52.0);
+    ui.add_space(46.0);
 
     let side = ((ui.available_width() - CENTER_W - GAP * 2.0) / 2.0).min(SIDE_W);
     let total = side * 2.0 + CENTER_W + GAP * 2.0;
@@ -71,32 +71,51 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
                     0.5,
                     Layout::top_down(Align::Center),
                     |ui| {
-                        let content_h = START_D + 60.0 + 26.0;
-                        ui.add_space(((column_h - content_h) / 2.0).max(0.0));
+                        let col = ui.max_rect();
+                        let outer = START_D + 60.0;
 
+                        let btn_rect = Rect::from_center_size(col.center(), vec2(CENTER_W, outer));
                         let hint = if enabled {
                             key_name(s.hotkey.load(Relaxed)).to_string()
                         } else {
                             tr(T::ReadyWhenYouAre).to_string()
                         };
 
-                        if start_button(
-                            ui,
-                            enabled,
-                            if enabled { tr(T::Stop) } else { tr(T::Start) },
-                            &hint,
-                            START_D,
-                        )
-                        .clicked()
-                        {
-                            enabled = !enabled;
-                        }
+                        ui.scope_builder(
+                            UiBuilder::new()
+                                .max_rect(btn_rect)
+                                .layout(Layout::top_down(Align::Center)),
+                            |ui| {
+                                if start_button(
+                                    ui,
+                                    enabled,
+                                    if enabled { tr(T::Stop) } else { tr(T::Start) },
+                                    &hint,
+                                    START_D,
+                                )
+                                .clicked()
+                                {
+                                    enabled = !enabled;
+                                }
+                            },
+                        );
 
-                        status_line(
-                            ui,
-                            enabled,
-                            tr(T::CurrentlyStatus),
-                            if enabled { tr(T::Running) } else { tr(T::Idle) },
+                        let status_rect = Rect::from_min_size(
+                            pos2(col.left(), btn_rect.bottom() - 4.0),
+                            vec2(CENTER_W, 20.0),
+                        );
+                        ui.scope_builder(
+                            UiBuilder::new()
+                                .max_rect(status_rect)
+                                .layout(Layout::top_down(Align::Center)),
+                            |ui| {
+                                status_line(
+                                    ui,
+                                    enabled,
+                                    tr(T::CurrentlyStatus),
+                                    if enabled { tr(T::Running) } else { tr(T::Idle) },
+                                );
+                            },
                         );
                     },
                 );
@@ -231,7 +250,7 @@ fn activation_card(ui: &mut Ui, s: &Arc<Settings>, mode: &mut usize, w: f32) {
         }
 
         let mut toggle_mode = s.toggle.load(Relaxed) as usize;
-        segmented(ui, &mut toggle_mode, &[tr(T::Hold), tr(T::Toggle)], 115.0);
+        segmented(ui, &mut toggle_mode, &[tr(T::Hold), tr(T::Toggle)], 120.0);
         s.toggle.store(toggle_mode == 1, Relaxed);
     });
 }

@@ -20,7 +20,6 @@ pub fn close_button(ui: &mut egui::Ui) -> egui::Response {
 
     let p = ui.painter();
     p.rect_filled(r, 8, bg);
-    p.rect_stroke(r, 8, Stroke::new(1.0, border), StrokeKind::Inside);
 
     let c = r.center();
     let d = 4.5;

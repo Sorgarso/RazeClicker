@@ -128,10 +128,45 @@ pub enum T {
     OtherSub,
     UpdateSub,
     TryAgain,
+    AboutEyebrow,
+    AboutTitle,
+    AboutSub,
+    AboutTagline,
+    MadeWithCare,
+    MadeSimple,
+    MadeSimpleSub,
+    Support,
+    GetInTouch,
 }
 pub fn tr(k: T) -> &'static str {
     use T::*;
     match (lang(), k) {
+        (Lang::En, AboutEyebrow) => "Thoughtfully simple",
+        (Lang::Ru, AboutEyebrow) => "Просто и продуманно",
+        (Lang::En, AboutTitle) => "About Raze",
+        (Lang::Ru, AboutTitle) => "О Raze",
+        (Lang::En, AboutSub) => "A small helper that gives your hands a little room to breathe.",
+        (Lang::Ru, AboutSub) => "Маленький помощник, который даёт рукам немного передохнуть.",
+        (Lang::En, AboutTagline) => {
+            "Designed for focus, built for ease. A gentle, uncomplicated way to automate repetitive clicks."
+        }
+        (Lang::Ru, AboutTagline) => {
+            "Создан для сосредоточенности и лёгкости. Простой способ автоматизировать повторяющиеся клики."
+        }
+        (Lang::En, MadeWithCare) => "Made with care",
+        (Lang::Ru, MadeWithCare) => "Сделано с заботой",
+        (Lang::En, MadeSimple) => "Made to feel simple",
+        (Lang::Ru, MadeSimple) => "Сделано, чтобы быть простым",
+        (Lang::En, MadeSimpleSub) => {
+            "Clear controls, considered details, and a little more breathing room in your day."
+        }
+        (Lang::Ru, MadeSimpleSub) => {
+            "Понятное управление, продуманные детали и чуть больше свободы в твоём дне."
+        }
+        (Lang::En, Support) => "Support",
+        (Lang::Ru, Support) => "Поддержка",
+        (Lang::En, GetInTouch) => "Get in touch",
+        (Lang::Ru, GetInTouch) => "Связаться",
         (Lang::En, UpdateSub) => "A new version of RazeClicker is ready",
         (Lang::Ru, UpdateSub) => "Доступна новая версия RazeClicker",
         (Lang::En, TryAgain) => "Try again",
@@ -154,8 +189,8 @@ pub fn tr(k: T) -> &'static str {
         (Lang::Ru, ParallaxSub) => "Карточки слегка следуют за курсором",
         (Lang::En, Ambient) => "Ambient background",
         (Lang::Ru, Ambient) => "Анимированный фон",
-        (Lang::En, AmbientSub) => "Glowing clouds and particles. May increase CPU usage",
-        (Lang::Ru, AmbientSub) => "Светящиеся облака и частицы. Может нагружать процессор",
+        (Lang::En, AmbientSub) => "Glowing clouds and particles.",
+        (Lang::Ru, AmbientSub) => "Светящиеся облака и частицы.",
         (Lang::En, KeyboardMode) => "Keyboard mode",
         (Lang::Ru, KeyboardMode) => "Режим клавиатуры",
         (Lang::En, SettingsEyebrow) => "Make it yours",

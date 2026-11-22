@@ -23,20 +23,11 @@ pub fn font_button(
 
     let r = rect.shrink(press_t * 1.5);
     let bg = color_bg.lerp_to_gamma(color_hover, hover_t);
-    let border = CARD_BORDER.lerp_to_gamma(
-        Color32::from_rgba_unmultiplied(222, 163, 195, 160),
-        hover_t * 0.6,
-    );
     let fg = MUTED.lerp_to_gamma(Color32::WHITE, hover_t);
 
     let p = ui.painter();
     p.rect_filled(r, corner_radius, bg);
-    p.rect_stroke(
-        r,
-        corner_radius,
-        Stroke::new(1.0, border),
-        StrokeKind::Inside,
-    );
+
     p.text(
         r.center(),
         egui::Align2::CENTER_CENTER,

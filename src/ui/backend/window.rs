@@ -56,7 +56,7 @@ impl ApplicationHandler for Host {
             .create_window(
                 Window::default_attributes()
                     .with_title("RazeClicker")
-                    .with_inner_size(LogicalSize::new(1040.0, 620.0))
+                    .with_inner_size(LogicalSize::new(950.0, 600.0))
                     .with_resizable(false)
                     .with_decorations(false)
                     .with_transparent(true),

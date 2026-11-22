@@ -1,6 +1,6 @@
 [package]
 name = "RazeClicker"
-version = "2.3.0"
+version = "2.3.1"
 edition = "2024"
 license = "MIT"
 
@@ -37,6 +37,7 @@ windows = { version = "0.62.2", features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_Graphics_Gdi",
     "Win32_Security",
+    "Win32_Graphics_Direct3D_Fxc"
 ] }
 
 [build-dependencies]

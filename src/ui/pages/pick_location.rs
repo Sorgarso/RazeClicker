@@ -99,7 +99,7 @@ pub fn show(ui: &mut Ui, s: &Arc<Settings>) {
                     start_pick_location();
                 }
 
-                if outlined_button(
+                if logo_button(
                     ui,
                     DANGER_IDLE,
                     DANGER_HOVER,

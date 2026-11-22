@@ -1,6 +1,8 @@
 use crate::i18n::{T, tr};
 use crate::ui::anim::page_reveal::staggered;
-use crate::ui::components::{drift::drift, link_button::link_button, pill::pill};
+use crate::ui::components::{
+    card::card, drift::drift, link_button::link_button, link_row::link_row, page_title::page_title,
+};
 use crate::ui::fonts::fa_data::*;
 use crate::ui::fonts::fonts::regular;
 use crate::ui::images::{self, Img};
@@ -10,88 +12,151 @@ use egui::{Align, Layout, RichText, Ui, Vec2};
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const URL_SITE: &str = "https://razeclicker.pw/";
+const URL_SUPPORT: &str = "https://www.razeclicker.pw/feedback";
 const URL_EULA: &str = "https://razeclicker.pw/license";
 const URL_DONATE: &str = "https://www.donationalerts.com/r/sorgarso";
 const URL_GITHUB: &str = "https://github.com/Sorgarso/RazeClicker";
 const URL_LICENSES: &str =
     "https://github.com/Sorgarso/RazeClicker/blob/main/THIRD-PARTY-LICENSES.md";
 
-const COL_W: f32 = 520.0;
-const GAP: f32 = 12.0;
-const BTN_H: f32 = 48.0;
-const HEAD_H: f32 = 190.0;
-const GRID_H: f32 = BTN_H * 3.0 + GAP * 2.0;
+const CARD_W: f32 = 372.0;
+const CARD_H: f32 = 160.0;
+const GAP: f32 = 16.0;
+const CHIP_H: f32 = 42.0;
+const CHIP_GAP: f32 = 10.0;
 
 pub fn show(ui: &mut Ui) {
     staggered(ui, 0, |ui| {
-        ui.add_space(12.0);
+        page_title(ui, tr(T::AboutEyebrow), tr(T::AboutTitle), tr(T::AboutSub));
+    });
+
+    ui.add_space(34.0);
+
+    let avail = ui.available_width();
+    let w = ((avail - GAP) / 2.0).min(CARD_W);
+    let total = w * 2.0 + GAP;
+    let pad = ((avail - total) / 2.0).max(0.0);
+    let m = MARGIN_BASE as f32 * 2.0;
+    let size = Vec2::new(w, CARD_H + m);
+
+    ui.horizontal_top(|ui| {
+        ui.spacing_mut().item_spacing.x = GAP;
+        ui.add_space(pad);
 
         drift(
             ui,
-            "about_head",
-            Vec2::new(ui.available_width(), HEAD_H),
-            0.6,
-            Layout::top_down(Align::Center),
+            "about_app",
+            size,
+            1.0,
+            Layout::top_down(Align::Min),
             |ui| {
-                ui.vertical_centered(|ui| {
-                    images::show(ui, Img::Logo, egui::vec2(84.0, 84.0));
-                    ui.add_space(12.0);
-                    ui.label(RichText::new("RazeClicker").font(regular(30.0)).color(TEXT));
-                    ui.add_space(8.0);
-                    pill(ui, format!("v{VERSION}"), ACCENT);
-                    ui.add_space(8.0);
-                    ui.label(RichText::new(tr(T::AboutText)).size(13.0).color(MUTED));
+                card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
+                    ui.set_width(w - m);
+                    ui.set_height(CARD_H);
+                    ui.spacing_mut().item_spacing.y = 0.0;
+
+                    images::show(ui, Img::Logo, egui::vec2(48.0, 48.0));
+                    ui.add_space(10.0);
+                    ui.label(RichText::new("RazeClicker").font(regular(17.0)).color(TEXT));
+                    ui.add_space(5.0);
+                    ui.add(
+                        egui::Label::new(
+                            RichText::new(tr(T::AboutTagline))
+                                .font(regular(12.0))
+                                .color(MUTED),
+                        )
+                        .wrap(),
+                    );
+
+                    let free = (ui.available_height() - 16.0).max(0.0);
+                    ui.add_space(free);
+                    ui.label(
+                        RichText::new(format!(
+                            "{} {} · {}",
+                            tr(T::Version),
+                            VERSION,
+                            tr(T::MadeWithCare)
+                        ))
+                        .font(regular(11.0))
+                        .color(START_PINK),
+                    );
                 });
             },
         );
 
-        ui.add_space(32.0);
+        drift(
+            ui,
+            "about_links",
+            size,
+            1.0,
+            Layout::top_down(Align::Min),
+            |ui| {
+                card(ui, MARGIN_BASE, MARGIN_BASE, 15, |ui| {
+                    ui.set_width(w - m);
+                    ui.set_height(CARD_H);
+                    ui.spacing_mut().item_spacing.y = 0.0;
 
-        let w = ui.available_width().min(COL_W);
-        let pad = ((ui.available_width() - w) / 2.0).max(0.0);
-        let half = (w - GAP) / 2.0;
+                    ui.label(
+                        RichText::new(tr(T::MadeSimple))
+                            .font(regular(17.0))
+                            .color(TEXT),
+                    );
+                    ui.add_space(6.0);
+                    ui.add(
+                        egui::Label::new(
+                            RichText::new(tr(T::MadeSimpleSub))
+                                .font(regular(12.0))
+                                .color(MUTED),
+                        )
+                        .wrap(),
+                    );
 
-        let items = [
-            (ICON_FA_GLOBE, tr(T::Website), URL_SITE),
-            (ICON_FA_FILE_CONTRACT, tr(T::Eula), URL_EULA),
-            (ICON_FA_HEART, tr(T::Donate), URL_DONATE),
-            (ICON_FA_CODE, "GitHub", URL_GITHUB),
-        ];
+                    let free = (ui.available_height() - 80.0).max(0.0);
+                    ui.add_space(free);
 
-        ui.horizontal_top(|ui| {
-            ui.add_space(pad);
-            drift(
-                ui,
-                "about_grid",
-                Vec2::new(w, GRID_H),
-                1.0,
-                Layout::top_down(Align::Min),
-                |ui| {
-                    ui.spacing_mut().item_spacing = Vec2::new(GAP, GAP);
-
-                    for row in items.chunks(2) {
-                        ui.horizontal(|ui| {
-                            ui.spacing_mut().item_spacing.x = GAP;
-                            for (icon, text, url) in row {
-                                if link_button(ui, icon, text, Vec2::new(half, BTN_H)).clicked() {
-                                    ui.ctx().open_url(egui::OpenUrl::new_tab(*url));
-                                }
-                            }
-                        });
+                    if link_row(ui, tr(T::Website), "razeclicker.pw", true) {
+                        ui.ctx().open_url(egui::OpenUrl::new_tab(URL_SITE));
                     }
-
-                    if link_button(
-                        ui,
-                        ICON_FA_SCALE_BALANCED,
-                        tr(T::ThirdPartyLicenses),
-                        Vec2::new(w, BTN_H),
-                    )
-                    .clicked()
-                    {
-                        ui.ctx().open_url(egui::OpenUrl::new_tab(URL_LICENSES));
+                    if link_row(ui, tr(T::Support), tr(T::GetInTouch), false) {
+                        ui.ctx().open_url(egui::OpenUrl::new_tab(URL_SUPPORT));
                     }
-                },
-            );
-        });
+                });
+            },
+        );
     });
+
+    ui.add_space(14.0);
+
+    let chip_w = (total - CHIP_GAP * 3.0) / 4.0;
+    let chips = [
+        (ICON_FA_FILE_CONTRACT, tr(T::Eula), URL_EULA),
+        (ICON_FA_HEART, tr(T::Donate), URL_DONATE),
+        (ICON_FA_CODE, "GitHub", URL_GITHUB),
+        (
+            ICON_FA_SCALE_BALANCED,
+            tr(T::ThirdPartyLicenses),
+            URL_LICENSES,
+        ),
+    ];
+
+    ui.horizontal_top(|ui| {
+        ui.add_space(pad);
+        drift(
+            ui,
+            "about_chips",
+            Vec2::new(total, CHIP_H),
+            0.8,
+            Layout::left_to_right(Align::Min),
+            |ui| {
+                ui.spacing_mut().item_spacing.x = CHIP_GAP;
+                for (icon, text, url) in chips {
+                    if link_button(ui, icon, text, Vec2::new(chip_w, CHIP_H)).clicked() {
+                        ui.ctx().open_url(egui::OpenUrl::new_tab(url));
+                    }
+                }
+            },
+        );
+    });
+
+    ui.add_space(12.0);
 }

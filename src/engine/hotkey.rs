@@ -18,6 +18,12 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
             rec.handle(&s, &e);
             match e.ev {
                 InputEvent::KeyDown(vk) if vk as usize == s.start_hotkey.load(Relaxed) => {
+                    if !s.recorder_enabled.load(Relaxed)
+                        && (vk == s.start_hotkey.load(Relaxed) as u32
+                            || vk == s.play_hotkey.load(Relaxed) as u32)
+                    {
+                        continue;
+                    }
                     if recorder::is_recording(&s) {
                         recorder::stop_record(&s);
                     } else if recorder::is_playing(&s) {
@@ -27,6 +33,12 @@ pub fn start(s: Arc<Settings>, rx: Receiver<Event>) {
                     }
                 }
                 InputEvent::KeyDown(vk) if vk as usize == s.play_hotkey.load(Relaxed) => {
+                    if !s.recorder_enabled.load(Relaxed)
+                        && (vk == s.start_hotkey.load(Relaxed) as u32
+                            || vk == s.play_hotkey.load(Relaxed) as u32)
+                    {
+                        continue;
+                    }
                     if recorder::is_recording(&s) {
                         recorder::stop_record(&s);
                     } else if recorder::is_playing(&s) {

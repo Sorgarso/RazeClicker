@@ -20,7 +20,7 @@ pub fn show(ui: &mut egui::Ui, st: &mut UiState) {
     egui::Panel::top("header")
         .exact_size(64.0)
         .resizable(false)
-        .show_separator_line(true)
+        .show_separator_line(false)
         .frame(
             Frame::new()
                 .fill(egui::Color32::TRANSPARENT)
@@ -50,12 +50,7 @@ pub fn show(ui: &mut egui::Ui, st: &mut UiState) {
                         .color(TEXT),
                 );
 
-                ui.label(
-                    RichText::new("clicker")
-                        .font(regular(17.0))
-                        .strong()
-                        .color(MUTED),
-                );
+                ui.label(RichText::new("clicker").font(regular(17.0)).color(MUTED));
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     ui.spacing_mut().item_spacing.x = 5.0;

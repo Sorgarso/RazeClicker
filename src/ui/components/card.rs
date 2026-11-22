@@ -12,7 +12,6 @@ pub fn card(
     staggered(ui, 0, |ui| {
         Frame::new()
             .fill(CARD)
-            .stroke(Stroke::new(1.0, CARD_BORDER))
             .corner_radius(CornerRadius::same(corner))
             .inner_margin(Margin::symmetric(margin_x, margin_y))
             .show(ui, |ui| {

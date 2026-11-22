@@ -48,12 +48,6 @@ pub fn side_tabs(ui: &mut Ui, cur: &mut usize, items: &[(&str, &str)], w: f32) {
         );
     }
     p.rect_filled(pill, 12, Color32::from_rgba_unmultiplied(222, 163, 195, 30));
-    p.rect_stroke(
-        pill,
-        12,
-        Stroke::new(1.0, Color32::from_rgba_unmultiplied(222, 163, 195, 110)),
-        StrokeKind::Inside,
-    );
 
     for (i, (icon, label)) in items.iter().enumerate() {
         let r = slot(i);

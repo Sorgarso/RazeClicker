@@ -20,7 +20,7 @@ pub fn radio_card(ui: &mut Ui, selected: bool, text: &str) -> Response {
         rect,
         CornerRadius::same(10),
         bg,
-        Stroke::new(1.0 + 0.5 * t, border),
+        Stroke::new(0.0, border),
         StrokeKind::Inside,
     );
 

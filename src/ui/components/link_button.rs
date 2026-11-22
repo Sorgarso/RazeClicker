@@ -20,10 +20,6 @@ pub fn link_button(ui: &mut Ui, icon: &str, text: &str, size: Vec2) -> Response 
 
     let p = ui.painter();
     p.rect_filled(r, 14, bg);
-    p.rect_stroke(r, 14, Stroke::new(1.0, CARD_BORDER), StrokeKind::Inside);
-    if hover_t > 0.0 {
-        p.rect_stroke(r, 14, Stroke::new(1.0, border), StrokeKind::Inside);
-    }
 
     let color = MUTED.lerp_to_gamma(TEXT, hover_t);
     let g = p.layout_no_wrap(text.to_owned(), regular(14.0), color);

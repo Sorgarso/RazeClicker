@@ -2,6 +2,22 @@
 
 All notable changes to RazeClicker are documented here.
 
+## [2.3.1] - 2026-11-22
+
+### Added
+- Added the ability to enable and disable the Recorder.
+
+### Improved
+- Redesigned the About page.
+- Improved the overall application layout and window size.
+- Refined the application header and window controls.
+- Reworked Ambient Effects using shader-based rendering.
+
+### Fixed
+- Fixed various minor bugs and issues.
+
+---
+
 ## [2.3.0] - 2026-11-21
 
 ### Added

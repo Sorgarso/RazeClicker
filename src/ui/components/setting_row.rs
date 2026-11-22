@@ -19,12 +19,7 @@ pub fn setting_row(
     let badge = Rect::from_min_size(pos2(rect.left(), rect.center().y - 15.0), vec2(30.0, 30.0));
     let p = ui.painter();
     p.rect_filled(badge, 9, Color32::from_rgba_unmultiplied(222, 163, 195, 30));
-    p.rect_stroke(
-        badge,
-        9,
-        Stroke::new(1.0, Color32::from_rgba_unmultiplied(222, 163, 195, 90)),
-        StrokeKind::Inside,
-    );
+
     p.text(
         badge.center(),
         Align2::CENTER_CENTER,

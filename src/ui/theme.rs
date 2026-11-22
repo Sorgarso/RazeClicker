@@ -20,9 +20,11 @@ pub const START_PINK_DARK: egui::Color32 = egui::Color32::from_rgb(38, 28, 40);
 pub const EYEBROW_ORANGE: egui::Color32 = egui::Color32::from_rgb(214, 140, 110);
 
 pub const CLOSE_HOVER: Color32 = Color32::from_rgb(232, 90, 110);
-pub const CLOSE_IDLE: Color32 = Color32::from_rgb(29, 26, 35);
-pub const MIN_IDLE: Color32 = Color32::from_rgb(29, 26, 35);
+pub const CLOSE_IDLE: Color32 = Color32::TRANSPARENT;
+
+pub const MIN_IDLE: Color32 = Color32::TRANSPARENT;
 pub const MIN_HOVER: Color32 = Color32::from_rgb(46, 41, 53);
+// сделать прозрачность
 pub const DANGER_HOVER: Color32 = Color32::from_rgb(232, 90, 110);
 pub const DANGER_IDLE: Color32 = Color32::from_rgb(202, 80, 102);
 pub const DANGER_FILLED: Color32 = Color32::from_rgb(34, 24, 30);

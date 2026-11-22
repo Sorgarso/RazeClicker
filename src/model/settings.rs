@@ -24,6 +24,7 @@ pub struct Settings {
     pub mode: AtomicUsize,
     pub toggle: AtomicBool,
     pub enabled: AtomicBool,
+    pub recorder_enabled: AtomicBool,
     pub hotkey: AtomicUsize,     // VK-код
     pub key_button: AtomicUsize, // VK-код
     pub capturing: AtomicBool,
@@ -56,6 +57,7 @@ impl Settings {
             unit: AtomicUsize::new(0),
             button: AtomicUsize::new(0),
             mode: AtomicUsize::new(MOUSE_MODE),
+            recorder_enabled: AtomicBool::new(false),
             toggle: AtomicBool::new(TOGGLE),
             enabled: AtomicBool::new(false),
             hotkey: AtomicUsize::new(0x73), // F4
@@ -136,6 +138,7 @@ impl Settings {
         self.click_limit.store(100, Relaxed);
         self.ambient.store(false, Relaxed);
         self.parallax.store(false, Relaxed);
+        self.recorder_enabled.store(true, Relaxed);
     }
 }
 

@@ -28,6 +28,7 @@ pub struct Config {
     pub always_on_top: bool,
     pub ambient: bool,
     pub parallax: bool,
+    pub recorder_enabled: bool,
 }
 
 impl Default for Config {
@@ -53,6 +54,7 @@ impl Default for Config {
             always_on_top: false,
             ambient: false,
             parallax: false,
+            recorder_enabled: false,
         }
     }
 }
@@ -84,6 +86,7 @@ impl Config {
             always_on_top: s.always_on_top.load(Relaxed),
             ambient: s.ambient.load(Relaxed),
             parallax: s.parallax.load(Relaxed),
+            recorder_enabled: s.recorder_enabled.load(Relaxed),
         }
     }
 
@@ -110,6 +113,7 @@ impl Config {
             .store(self.click_limit_enabled, Relaxed);
         s.ambient.store(self.ambient, Relaxed);
         s.parallax.store(self.parallax, Relaxed);
+        s.recorder_enabled.store(self.recorder_enabled, Relaxed);
     }
 }
 

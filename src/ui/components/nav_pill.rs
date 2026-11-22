@@ -31,12 +31,6 @@ pub fn nav_pill(ui: &mut Ui, current: &mut Page, items: &[(Page, &str, &str)]) {
 
     ui.painter()
         .rect_filled(pill, 22, Color32::from_rgba_unmultiplied(255, 255, 255, 6));
-    ui.painter().rect_stroke(
-        pill,
-        22,
-        Stroke::new(1.0, Color32::from_rgba_unmultiplied(255, 255, 255, 14)),
-        StrokeKind::Inside,
-    );
 
     let mut x = pill.left() + pill_pad;
     for (i, (page, icon, label)) in items.iter().enumerate() {
@@ -60,17 +54,6 @@ pub fn nav_pill(ui: &mut Ui, current: &mut Page, items: &[(Page, &str, &str)]) {
             16,
             Color32::from_rgba_unmultiplied(222, 163, 195, fill_a),
         );
-        if stroke_a > 0 {
-            p.rect_stroke(
-                r,
-                16,
-                Stroke::new(
-                    1.0,
-                    Color32::from_rgba_unmultiplied(222, 163, 195, stroke_a),
-                ),
-                StrokeKind::Inside,
-            );
-        }
 
         let color = MUTED.lerp_to_gamma(TEXT, t_act.max(t_hov));
         p.text(

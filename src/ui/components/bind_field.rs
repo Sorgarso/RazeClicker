@@ -31,6 +31,7 @@ pub fn bind_field(ui: &mut Ui, text: &str, capturing: bool) -> bool {
 
     let p = ui.painter();
     p.rect_filled(rect, 8, bg);
+    p.rect_stroke(rect, 8, Stroke::new(1.0, CARD_BORDER), StrokeKind::Inside);
     if cap_t > 0.0 {
         let a = (cap_t * 200.0) as u8;
         p.rect_stroke(
